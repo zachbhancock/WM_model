@@ -74,6 +74,6 @@ catn("Reached generation 50k");
 100000 late(){
 	outname= WORKINGDIR+TREEFILE;
 	sim.treeSeqOutput(outname);
-	catn("Final population size: " + p1.individualCount);
+	writeFile(outname + "_popsize", paste(p1.individualCount));
 	sim.simulationFinished();
 	}
