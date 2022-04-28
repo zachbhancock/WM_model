@@ -16,7 +16,7 @@ rng = default_rng()
 WORKINGDIR = sys.argv[1]
 TREEFILE = sys.argv[2]
 prefix = WORKINGDIR + TREEFILE
-f = open(prefix+"_popsize.txt", "r")
+f = open("popsize.txt", "r")
 N = f.read()
 N = int(N)
 print(f"WORKINGDIR is ", WORKINGDIR)
@@ -26,7 +26,7 @@ print(f"N is ", N)
 
 ts = pyslim.load(prefix)
 ts = ts.simplify()
-recap_ts = ts.recapitate(recombination_rate=1e-8, Ne=N)
+recap_ts = ts.recapitate(recombination_rate=1e-8, Ne=2*N)
 ts = pyslim.SlimTreeSequence(msprime.mutate(recap_ts, rate=1e-7))
 
 #specific places
