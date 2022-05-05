@@ -19,29 +19,12 @@ getWMhom <- function(s,m,k,nbhd,inDeme,geoDist){
 	return(pHom)
 }
 
-ml2init <- function(db,mod,nRuns){
-	mlRuns <- lapply(1:nRuns,
-					function(i){
-						optimizing(object=mod,data=db)
-					})
-	bestRun <- which.max(unlist(lapply(mlRuns,"[[","value")))
-	# lnls <- unlist(lapply(mlRuns,"[[","value"))
-	# nbhds <- unlist(lapply(mlRuns,function(x){x$par[1]}))
-	# ms <- unlist(lapply(mlRuns,function(x){x$par[2]}))
-	# inDemes <- unlist(lapply(mlRuns,function(x){x$par[3]}))
-	# ss <- unlist(lapply(mlRuns,function(x){x$par[4]}))
-	inits <- list("nbhd" = as.numeric(mlRuns[[bestRun]]$par[which(names(mlRuns[[bestRun]]$par)=="nbhd")]),
-				  "inDeme" = as.numeric(mlRuns[[bestRun]]$par[which(names(mlRuns[[bestRun]]$par)=="inDeme")]),
-				  "s" = as.numeric(mlRuns[[bestRun]]$par[which(names(mlRuns[[bestRun]]$par)=="s")]),
-				  "m" = as.numeric(mlRuns[[bestRun]]$par[which(names(mlRuns[[bestRun]]$par)=="m")]))
-	return(inits)
-}
-
+source("../../wm_lib.R")
 ################################
 # compile rstan model
 ################################
 source("../../models/wm_hom_cmpPar_cmpLnL_mod_block.R")
-wm <- stan_model(model_code=stanBlock)
+ibsMod <- stan_model(model_code=stanBlock)
 
 
 ################################
@@ -75,9 +58,11 @@ pars[["geoDist"]] <- geoDist
 
 db <- list("lut" = N*(N-1)/2,
 		   "k" = 1,
-		   "obsHom" = obsHom[ut],
+		   "hom" = obsHom[ut],
 		   "se" = abs(rnorm(N*(N-1)/2,mean=0,sd=0.05)),
 		   "geoDist" = geoDist[ut])
+
+runWM_cmpLnl(stanMod=ibsMod,dataBlock=db,nChains=2,nIter=2e3,prefix="test")
 
 nChains <- 2
 inits <- lapply(1:nChains,function(i){ml2init(db=db,mod=wm,nRuns=1e3)})
@@ -106,7 +91,7 @@ pHom <- rstan::extract(fit,"pHom",permute=FALSE)[,1,]
 lpd <- rstan::get_logposterior(fit)
 
 pdf(file="sim_test.pdf",width=10,height=8)
-plot(db$geoDist,db$obsHom,col="red",pch=19,ylim=range(pHom))
+plot(db$geoDist,db$hom,col="red",pch=19,ylim=range(pHom))
 	invisible(
 		lapply(sample(1:nrow(pHom),25),
 			function(i){
