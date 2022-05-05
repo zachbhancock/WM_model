@@ -13,18 +13,18 @@ functions {
 data {
 	int<lower=0> lut;				// length of the upper triangle, excluding the diagonal
 	real<lower=0> k;					// distance threshold within which Wright-Malecot breaks down
-	vector[lut] obsHom; 			// observed pairwise homozygosity (upper triangle of pairwise matrix)
+	vector[lut] hom; 			// observed pairwise homozygosity (upper triangle of pairwise matrix)
 	vector[lut] se; 					// standard errors of pairwise homozygosity measures
 	vector[lut] geoDist; 			// upper triangle of matrix of pairwise geographic distance 
 }
 transformed data {
-	vector[lut] obsHomScl;
+	vector[lut] homScl;
 	real sclMn;
 	real sclMx;
 	vector[lut]seScl;
-	sclMn = min(obsHom);
-	sclMx = max(obsHom-sclMn);
-	obsHomScl = (obsHom - sclMn)/sclMx;
+	sclMn = min(hom);
+	sclMx = max(hom-sclMn);
+	homScl = (hom - sclMn)/sclMx;
 	seScl = se/sclMx;
 }
 parameters {
@@ -44,7 +44,7 @@ model {
 	m ~ normal(0,0.1);				// prior on scaled migration rate
 	nbhd ~ normal(10,100);			// prior on neighborhood size
 	inDeme ~ beta(1,0.01);			// prior on within-deme p(IBD)
-//	for(i in 1:lut) obsHomScl[i] ~ normal(pHomScl[i],seScl[i]);
-	obsHomScl ~ normal(pHomScl,seScl);
+//	for(i in 1:lut) homScl[i] ~ normal(pHomScl[i],seScl[i]);
+	homScl ~ normal(pHomScl,seScl);
 }
 "
