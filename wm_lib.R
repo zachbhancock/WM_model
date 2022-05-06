@@ -26,7 +26,7 @@ runWM <- function(stanMod,dataBlock,nChains,nIter,prefix){
 }
 
 runWM_cmpLnl <- function(stanMod,dataBlock,nChains,nIter,prefix){
-	initPars <- lapply(1:nChains,function(i){ml2init(db=db,mod=stanMod,nRuns=5e2)})
+	initPars <- lapply(1:nChains,function(i){ml2init(db=dataBlock,mod=stanMod,nRuns=5e2)})
 	fit <- sampling(object = stanMod,
 				 data = dataBlock,
 				 iter = nIter,
