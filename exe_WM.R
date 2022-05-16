@@ -78,9 +78,9 @@ options(warn=1)
 #get list of all square iterations and square sizes to process
 list_of_prefixes <- list.files(path = workingdir, pattern = paste0(treefile,"*"), full.names = FALSE) %>% 
   as.data.frame() %>% dplyr::rename("file" = ".") %>% separate(., file, into = c("prefix"), sep = "-", extra = "drop") %>% 
-  distinct() %>% filter(stringr::str_detect(prefix, "squareRep"))
+  distinct() %>% filter(stringr::str_detect(prefix, "K") %>% filter(stringr::str_detect(prefix, "sigma"))
 
-#process each square iteration / size combo
+#process for each K and sigma combo
 for (prefix in list_of_prefixes$prefix){
   
   print(paste0("prefix is: ", prefix)) #prints to .out file
@@ -133,5 +133,70 @@ for (prefix in list_of_prefixes$prefix){
         nChains = 4,
         nIter = 4e3,
         prefix = paste0(prefix, "-est")))
+        
+    
+}
+
+#source our functions 
+source(paste0(workingdir,"/wm_lib.R"))
+
+#now run compLik
+stanFile <- "wm_hom_cmpPar_cmpLnL_mod_block_scaled.R"
+
+#process each K and sigma combo
+for (prefix in list_of_prefixes$prefix){
+  
+  print(paste0("prefix is: ", prefix)) #prints to .out file
+  #also print this to .err so we can tell when errors are thrown if they are
+  cat(paste0("prefix is: ", prefix, " now\n"), file = stderr())
+  
+  # read in slim metadata and make dataBlock for inference
+  sampled <- read.table(file=paste0(workingdir, "/", prefix, "-pi_locs.txt"), header=TRUE)
+  coords <- sampled[,c("x","y")]
+  geoDist <- fields::rdist(coords)
+  sampled.coal <- data.matrix(read.table(file=paste0(workingdir, "/", prefix, "-pi.csv"), header=TRUE))
+  #for torus
+  #geoDist <- dist.torus(coords)
+  #geoDist <- as.matrix(geoDist)
+  
+  
+  # translate coalescent times into pairwise pi
+  #	note that the coalescent time matrix output by SLiM is 
+  #	actually 2*TMRCA, so multiplying by a mutation rate 
+  #	should give pairwise pi
+  pwp <- sampled.coal
+  hom <- 1-pwp
+  # jitter it
+  #for(i in 1:nrow(pwp)){
+  #  for(j in i:nrow(pwp)){
+  #    hom[i,j] <- hom[i,j] + rnorm(1,0,1e-7)
+  #    hom[j,i] <- hom[i,j]
+  #  }
+  #}
+  
+  # add inbreeding
+  diag(hom) <- 1
+  
+  # make dataBlock for stan
+  # N = number of samples
+  # L = number of loci
+  # hom = pairwise homozygosity
+  # k = geographic distance w/in which W-M breaks down 
+  # (should be ~2*sigma)
+  # geoDist = pairwise geographic distance
+  dataBlock <- list("N"=nrow(pwp),
+                    "L" = 1e4,
+                    "hom"=hom,
+                    "k" = 0.25,
+                    "geoDist"=geoDist)
+  
+
+source(paste0(workingdir,"/",stanFile))
+ibsMod <- stan_model(model_code=stanBlock)
+    try(runWM(stanMod = ibsMod,
+        dataBlock = dataBlock,
+        nChains = 4,
+        nIter = 4e3,
+        prefix = paste0(prefix, "-cmpLnL_est")))
   
 }
