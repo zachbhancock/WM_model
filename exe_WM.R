@@ -88,10 +88,10 @@ for (prefix in list_of_prefixes$prefix){
   cat(paste0("prefix is: ", prefix, " now\n"), file = stderr())
   
   # read in slim metadata and make dataBlock for inference
-  sampled <- read.table(file=paste0(workingdir, "/", prefix, "-sampled_locs.txt"), header=TRUE)
+  sampled <- read.table(file=paste0(workingdir, "/", prefix, "-pi_locs.txt"), header=TRUE)
   coords <- sampled[,c("x","y")]
   geoDist <- fields::rdist(coords)
-  sampled.coal <- data.matrix(read.table(file=paste0(workingdir, "/", prefix, "-sampled.csv"), header=TRUE))
+  sampled.coal <- data.matrix(read.table(file=paste0(workingdir, "/", prefix, "-pi.csv"), header=TRUE))
   #for torus
   #geoDist <- dist.torus(coords)
   #geoDist <- as.matrix(geoDist)
