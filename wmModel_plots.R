@@ -62,28 +62,6 @@ for (prefix in list_of_prefixes$prefix) {
     separate(., prefix, into = c("slurm_job_id","slimIter","sigma","K"), sep = "_") %>% 
     dplyr::select(slurm_job_id, slimIter, sigma, K)
   
- #distance to edge by x
-  center.x <- mean(geo.dist$x)
-  center.y <- mean(geo.dist$y)
-  center.x.df <- as.data.frame(center.x)
-  center.y.df <- as.data.frame(center.y)
-  mean.point <- cbind(center.x.df, center.y.df)
-  names(mean.point)[1] <- "x"
-  names(mean.point)[2] <- "y"
-  xmin <- 0
-  xmax <- 25
-  ymin <- 0
-  ymax <- 25
-  xmin.dist <- abs(xmin - center.x)
-  xmax.dist <- abs(xmax - center.x)
-  x.dist <- as.data.frame(rbind(xmin.dist, xmax.dist))
-  x.dist <- x.dist %>% dplyr::filter(V1 == min(V1))
-  ymin.dist <- abs(ymin - center.y)
-  ymax.dist <- abs(ymax - center.y)
-  y.dist <- as.data.frame(rbind(ymin.dist, ymax.dist))
-  y.dist <- y.dist %>% dplyr::filter(V1 == min(V1))
-  dist.to.edge <- cbind(x.dist, y.dist)
-  
   load(paste(prefix, "-est_out.Robj", sep=""), verbose=TRUE)
   col_pi <- rstan::extract(out$fit, "s", inc_warmup=TRUE, permute=FALSE)
   nbhd_pi <- rstan::extract(out$fit, "nbhd", inc_warmup=TRUE, permute=FALSE)
@@ -99,6 +77,26 @@ for (prefix in list_of_prefixes$prefix) {
     dplyr::select(-chains)
   wmModel_pi$theo_nbhd <- 4*pi*wmModel_pi$K*(wmModel_pi*sigma)^2
   wmModel_pi$delta_nbhd <- theo.nbhd - wmModel_pi$nbhd_pi
+  wmModel_pi$model <- "Wischart"
+  
+  load(paste(prefix, "-est_cmpLnL_out.Robj", sep=""), verbose=TRUE)
+  col_cmpLnL <- rstan::extract(out$fit, "s", inc_warmup=TRUE, permute=FALSE)
+  nbhd_cmpLnL <- rstan::extract(out$fit, "nbhd", inc_warmup=TRUE, permute=FALSE)
+  inDeme_cmpLnL <- rstan::extract(out$fit, "inDeme", inc_warmup=TRUE, permute=FALSE)
+  m_cmpLnL <- rstan::extract(out$fit, "m", inc_warmup=TRUE, permute=FALSE)
+  post_cmpLnL <- rstan::get_logposterior(out$fit,inc_warmup=FALSE)
+  post_cmpLnL <- data.frame(matrix(unlist(post_cmpLnL), nrow=length(post_cmpLnL), byrow=FALSE))
+  post_cmpLnL <- cbind(stack(post_cmpLnL[1:4]))
+  names(post_LnL)[1] <- "posterior"
+  col_cmpLnL <- plyr::adply(col_cmpLnL, c(1,2,3))
+  wmModel_cmpLnL <- cbind(col_cmpLnL, post_cmpLnL, nbhd_cmpLnL, inDeme_cmpLnL, m_cmpLnL) %>% 
+    dplyr::mutate(col_cmpLnL = 1 - V1, iterations = as.numeric(iterations)) %>% 
+    dplyr::select(-chains)
+  wmModel_cmpLnL$theo_nbhd <- 4*pi*wmModel_cmpLnL$K*(wmModel_cmpLnL*sigma)^2
+  wmModel_cmpLnL$delta_nbhd <- theo.nbhd - wmModel_pi$nbhd_pi
+  wmModel_cmpLnL$model <- "cmpLnL"
+  
+  wmModel_all <- cbind(wmModel_pi, wmModel_cmpLnL)
   
 }
 
