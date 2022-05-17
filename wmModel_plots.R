@@ -103,21 +103,21 @@ for (prefix in list_of_prefixes$prefix) {
 write.table(wmModel_pi, file=paste(treefile, "-wmModel_est.txt", sep=""))
 
 pdf(file=paste(prefix, "-nhbd_K.pdf", sep=""))
-est.plot <- ggplot(wmModel_pi, aes(x=K, y=nbhd_pi, fill=sigma)) + geom_point(size=2)
+est.plot <- ggplot(wmModel_all, aes(x=K, y=nbhd_pi, fill=sigma, shape=model)) + geom_point(size=2)
 print(est.plot)
 dev.off()
 
 pdf(file=paste(prefix, "-nhbd_delta_K.pdf", sep=""))
-delta.plot <- ggplot(wmModel_pi, aes(x=K, y=delta_nbhd, fill=sigma)) + geom_point(size=2)
+delta.plot <- ggplot(wmModel_all, aes(x=K, y=delta_nbhd, fill=sigma, shape=model)) + geom_point(size=2)
 print(delta.plot)
 dev.off()
 
 pdf(file=paste(prefix, "-col_K.pdf", sep=""))
-col_K.plot <- ggplot(wmModel, aes(x=K, y=col_pi, fill=sigma)) + geom_point(size=2)
+col_K.plot <- ggplot(wmModel_all, aes(x=K, y=col_pi, fill=sigma, shape=model)) + geom_point(size=2)
 print(col_K.plot)
 dev.off()
 
 pdf(file=paste(prefix, "-inDeme_K.pdf", sep=""))
-col_K.plot <- ggplot(wmModel, aes(x=K, y=inDeme_pi, fill=sigma)) + geom_point(size=2)
+col_K.plot <- ggplot(wmModel_all, aes(x=K, y=inDeme_pi, fill=sigma, shape=model)) + geom_point(size=2)
 print(col_K.plot)
 dev.off()
