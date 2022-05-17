@@ -22,6 +22,7 @@ cp $SLURM_SUBMIT_DIR/exe_WM.R $WORKINGDIR
 cp $SLURM_SUBMIT_DIR/wmModel_plots.R $WORKINGDIR
 cp $SLURM_SUBMIT_DIR/wm_lib.R $WORKINGDIR
 cp $SLURM_SUBMIT_DIR/wm_hom_cmpPar_mod_block_scaled.R $WORKINGDIR
+cp $SLURM_SUBMIT_DIR/wm_hom_cmpPar_cmpLnL_mod_block_scaled.R $WORKINGDIR
 
 #move to execute node
 cd $WORKINGDIR
@@ -104,7 +105,7 @@ d=`date +%m,%d,%Y,%H,%M`
 echo "TIME,END,COLLECT_PLOTS,$d"
 
 #copy all output files back to storage node
-cp linear_* $OUTDIR
+cp wmModel_* $OUTDIR
 wait
 rm -rf $WORKINGDIR
 
