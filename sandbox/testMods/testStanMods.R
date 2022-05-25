@@ -31,7 +31,7 @@ ibsMod <- stan_model(model_code=stanBlock)
 # simulate dataset
 ################################
 
-N <- 40
+N <- 20
 coords <- matrix(runif(2*N,min=0,50),nrow=N,ncol=2)
 geoDist <- fields::rdist(coords)
 ut <- upper.tri(geoDist,diag=FALSE)
@@ -62,7 +62,7 @@ db <- list("lut" = N*(N-1)/2,
 		   "se" = abs(rnorm(N*(N-1)/2,mean=0,sd=0.05)),
 		   "geoDist" = geoDist[ut])
 
-runWM_cmpLnl(stanMod=ibsMod,dataBlock=db,nChains=2,nIter=2e3,prefix="test")
+runWM_cmpLnl(stanMod=ibsMod,dataBlock=db,nChains=1,nIter=2e3,prefix="test")
 
 nChains <- 2
 inits <- lapply(1:nChains,function(i){ml2init(db=db,mod=wm,nRuns=1e3)})
