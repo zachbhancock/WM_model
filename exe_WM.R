@@ -78,9 +78,9 @@ options(warn=1)
 #get list of all square iterations and square sizes to process
 list_of_prefixes <- list.files(path = workingdir, pattern = paste0(treefile,"*"), full.names = FALSE) %>% 
   as.data.frame() %>% dplyr::rename("file" = ".") %>% separate(., file, into = c("prefix"), sep = "-", extra = "drop") %>% 
-  distinct() %>% filter(stringr::str_detect(prefix, "squareRep"))
+  distinct() %>% filter(stringr::str_detect(prefix, "K") %>% filter(stringr::str_detect(prefix, "sigma"))
 
-#process each square iteration / size combo
+#process for each K and sigma combo
 for (prefix in list_of_prefixes$prefix){
   
   print(paste0("prefix is: ", prefix)) #prints to .out file
@@ -88,10 +88,10 @@ for (prefix in list_of_prefixes$prefix){
   cat(paste0("prefix is: ", prefix, " now\n"), file = stderr())
   
   # read in slim metadata and make dataBlock for inference
-  sampled <- read.table(file=paste0(workingdir, "/", prefix, "-sampled_locs.txt"), header=TRUE)
+  sampled <- read.table(file=paste0(workingdir, "/", prefix, "-pi_locs.txt"), header=TRUE)
   coords <- sampled[,c("x","y")]
   geoDist <- fields::rdist(coords)
-  sampled.coal <- data.matrix(read.table(file=paste0(workingdir, "/", prefix, "-sampled.csv"), header=TRUE))
+  sampled.coal <- data.matrix(read.table(file=paste0(workingdir, "/", prefix, "-pi.csv"), header=TRUE))
   #for torus
   #geoDist <- dist.torus(coords)
   #geoDist <- as.matrix(geoDist)
@@ -133,5 +133,12 @@ for (prefix in list_of_prefixes$prefix){
         nChains = 4,
         nIter = 4e3,
         prefix = paste0(prefix, "-est")))
-  
+        
+  try(runWM_cmpLnl(stanMod = ibsMod,
+        dataBlock = dataBlock,
+        nChains = 4,
+        nIter = 4e3,
+        prefix = past0(prefix, "-est_cmpLnl")))
+        
+    
 }
