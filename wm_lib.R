@@ -21,12 +21,15 @@ runWM <- function(stanMod,dataBlock,nChains,nIter,prefix){
             				   floor(nIter/500), 1))
 	out <- list("dataBlock" = dataBlock,
 				"fit" = fit)
+    saveOut(fit=fit,outPrefix=prefix)
 	save(out,file=paste0(prefix,"_out.Robj"))
 	vizWMout(wmOutfile=paste0(prefix,"_out.Robj"),outPrefix=prefix)
 }
 
 runWM_cmpLnl <- function(stanMod,dataBlock,nChains,nIter,prefix){
+	message("running ML analyses to generate initial parameter estimates")
 	initPars <- lapply(1:nChains,function(i){ml2init(db=dataBlock,mod=stanMod,nRuns=5e2)})
+	message("running Bayesian analyses")
 	fit <- sampling(object = stanMod,
 				 data = dataBlock,
 				 iter = nIter,
@@ -38,6 +41,7 @@ runWM_cmpLnl <- function(stanMod,dataBlock,nChains,nIter,prefix){
             				   floor(nIter/500), 1))
 	out <- list("dataBlock" = dataBlock,
 				"fit" = fit)
+    saveOut(fit=fit,outPrefix=prefix)
 	save(out,file=paste0(prefix,"_out.Robj"))
 	vizWMout_cmpLnl(wmOutfile=paste0(prefix,"_out.Robj"),outPrefix=prefix)
 }
@@ -108,6 +112,33 @@ getPhom <- function(model.fit,chain.no,N){
 		}
 	}
 	return(par.cov)
+}
+
+saveOut <- function(fit,outPrefix){
+	s <- rstan::extract(fit,"s",inc_warmup=FALSE)
+	if("nugget" %in% names(fit)){
+		nugget <- rstan::extract(fit,"nugget",inc_warmup=FALSE)
+	}
+	m <- rstan::extract(fit,"m",inc_warmup=FALSE)
+	nbhd <- rstan::extract(fit,"nbhd",inc_warmup=FALSE)
+	inDeme <- rstan::extract(fit,"inDeme",inc_warmup=FALSE)
+	ptEsts <- list("s" = mean(s[[1]]),
+				   "m" = mean(m[[1]]),
+				   "nbhd" = mean(nbhd[[1]]),
+				   "inDeme" = mean(inDeme[[1]]))
+	postDist <- list("s" = s,
+		 			 "nugget" = nugget,
+					 "m" = m,
+					 "nbhd" = nbhd,
+					 "inDeme" = inDeme)
+	if("nugget" %in% names(fit)){
+		ptEsts[["nugget"]] = mean(nugget[[1]])
+		postDist[["nugget"]] = nugget[[1]]
+	}
+	outPars <- list("pt" = ptEsts,
+				  "post" = postDist)
+	save(outPars,file=paste0(outPrefix,"_pars.Robj"))
+	return(invisible("saved"))
 }
 
 ################################
