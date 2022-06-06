@@ -80,4 +80,7 @@ with open(prefix+"-pi_locs.txt", "w") as indfile:
                 str(ind.location[0]), str(ind.location[1])]
         indfile.writelines("\t".join(data) + "\n")
 
+#print vcfs
+with open(prefix+"-vcf.vcf", "w") as vcf_file:
+   ts.write_vcf(vcf_file, ploidy=2)
 exit()
