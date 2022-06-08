@@ -28,6 +28,7 @@ cat(args, sep = "\n")
 #define some variables (pulled in from bash script)
 workingdir = args[1]
 treefile = args[2] %>% gsub("/", "", .)
+model_flavor = args[3]
 print(paste0("workingdir is ", workingdir))
 print(paste0("treefile is ", treefile))
 
@@ -37,7 +38,9 @@ print(paste0("treefile is ", treefile))
 #source our functions 
 source(paste0(workingdir,"/wm_lib.R"))
 
-stanFile <- "wm_hom_cmpPar_mod_block_scaled.R"
+if (model_flavor == "wishart") { stanFile <- "wm_hom_cmpPar_mod_block_scaled.R" }   
+if (model_flavor == "cmplnl") { stanFile <- "wm_hom_cmpPar_cmpLnL_mod_block.R" }  
+print(paste0("using stanFile: ", stanFile))
 source(paste0(workingdir,"/",stanFile))
 ibsMod <- stan_model(model_code=stanBlock)
 
@@ -51,34 +54,10 @@ ls()
 #print all warnings/errors as they occur
 options(warn=1)
 
-#under model
-#N <- 30
-#coords <- matrix(runif(2*N,0,30),nrow=N,ncol=2)
-#k <- 2
-#s <- 0.4
-#m <- 1e-3
-#nbhd <- 15
-#inDeme <- 0.5
-#nugget <- 0.01
-#geoDist <- fields::rdist(coords)
-#parIBS <- s + besselK(nu=0,x=m * geoDist) / nbhd
-#parIBS[which(geoDist < k)] <- inDeme + s
-#diag(parIBS) <- diag(parIBS) + nugget
-#plot(geoDist,parIBS)
-#db <- list("N" = N,
-#           "L" = 5e3,
-#           "hom" = parIBS,
-#           "k" = k,
-#           "geoDist" = geoDist)
-#
-#ibsMod <- stan_model(model_code=stanBlock)
-#fit <- sampling(ibsMod,data=db,iter=1e3,chains=1)
-
-
 #get list of all square iterations and square sizes to process
 list_of_prefixes <- list.files(path = workingdir, pattern = paste0(treefile,"*"), full.names = FALSE) %>% 
   as.data.frame() %>% dplyr::rename("file" = ".") %>% separate(., file, into = c("prefix"), sep = "-", extra = "drop") %>% 
-  distinct() %>% filter(stringr::str_detect(prefix, "K") %>% filter(stringr::str_detect(prefix, "sigma"))
+  distinct() %>% filter(stringr::str_detect(prefix, "K")) %>% filter(stringr::str_detect(prefix, "sigma"))
 
 #process for each K and sigma combo
 for (prefix in list_of_prefixes$prefix){
@@ -121,24 +100,48 @@ for (prefix in list_of_prefixes$prefix){
   # k = geographic distance w/in which W-M breaks down 
   # (should be ~2*sigma)
   # geoDist = pairwise geographic distance
-  dataBlock <- list("N"=nrow(pwp),
-                    "L" = 1e4,
-                    "hom"=hom,
-                    "k" = 0.25,
-                    "geoDist"=geoDist)
   
-  # run inference
-  try(runWM(stanMod = ibsMod,
-        dataBlock = dataBlock,
-        nChains = 4,
-        nIter = 4e3,
-        prefix = paste0(prefix, "-est")))
-        
-  try(runWM_cmpLnl(stanMod = ibsMod,
-        dataBlock = dataBlock,
-        nChains = 4,
-        nIter = 4e3,
-        prefix = past0(prefix, "-est_cmpLnl")))
+
+   # run inference
+  if (model_flavor == "wishart") {
+    
+    # make dataBlock for stan
+    # N = number of samples
+    # L = number of loci
+    # hom = pairwise homozygosity
+    # k = geographic distance w/in which W-M breaks down, (should be ~2*sigma)
+    # geoDist = pairwise geographic distance
+    dataBlock <- list("N"=nrow(pwp),
+                      "L" = 1e4,
+                      "hom"=hom,
+                      "k" = 0.25,
+                      "geoDist"=geoDist)
+    # run inference
+    try(runWM(stanMod = ibsMod,
+              dataBlock = dataBlock,
+              nChains = 4,
+              nIter = 4e3,
+              prefix = paste0(prefix, "-est_wishart")))
+    
+  }
+  
+  if (model_flavor == "cmplnl") {
+    
+    ut = upper.tri(hom, diag=FALSE)
+    
+    dataBlock <- list("lut" = length(hom[ut]),
+                      "hom" = hom[ut],
+                      "k" = 0.25,
+                      "geoDist" = geoDist[ut],
+                      "se" = se[ut])
+    # run inference
+    try(runWM_cmpLnl(stanMod = ibsMod,
+                     dataBlock = dataBlock,
+                     nChains = 4,
+                     nIter = 4e3,
+                     prefix = past0(prefix, "-est_cmpLnl")))
+    
+  }
         
     
 }

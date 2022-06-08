@@ -16,8 +16,6 @@ if [ ! -d $WORKINGDIR ]; then mkdir $WORKINGDIR; fi
 if [ ! -d $OUTDIR ]; then mkdir $OUTDIR; fi
 
 #copy scripts to execute node
-cp $SLURM_SUBMIT_DIR/test.slim $WORKINGDIR
-cp $SLURM_SUBMIT_DIR/processing_slim.py $WORKINGDIR
 cp $SLURM_SUBMIT_DIR/exe_WM.R $WORKINGDIR
 cp $SLURM_SUBMIT_DIR/wmModel_plots.R $WORKINGDIR
 cp $SLURM_SUBMIT_DIR/wm_lib.R $WORKINGDIR
@@ -26,50 +24,6 @@ cp $SLURM_SUBMIT_DIR/wm_hom_cmpPar_cmpLnL_mod_block_scaled.R $WORKINGDIR
 
 #move to execute node
 cd $WORKINGDIR
-
-### RUN SLIM ###
-
-# load all of the programs that we want to use
-# note - if defining variables with -d for slim, don't include a defineConstant() line in slim script
-# text variables defined with -d should use syntax - "MYVAR='$MYVAR'"
-module purge
-module load GCC/6.4.0-2.28
-module load OpenMPI/2.1.2
-module load SLiM/2019dev
-
-#format: month, day, year, hour (24 hr format), minutes
-d=`date +%m,%d,%Y,%H,%M`
-echo "TIME,START,SLIM,$d"
-
-slim -d K=$K -d SIGMA=$SIGMA -d "WORKINGDIR='$WORKINGDIR'" -d "TREEFILE='$TREEFILE'" -d "n='$SLURM_ARRAY_TASK_ID'" test.slim
-
-echo "DONE RUNNING SLIM"
-d=`date +%m,%d,%Y,%H,%M`
-echo "TIME,END,SLIM,$d"
-#generates tree sequence for each sigma and K combo
-
-### PARSE TREE FILES IN PYTHON ###
-
-#module load GCCcore/11.1.0
-#module load Python/3.9.6
-
-export PATH=$PATH:$HOME/anaconda3/bin
-
-source activate myconda
-
-d=`date +%m,%d,%Y,%H,%M`
-echo "TIME,START,PYTHON,$d"
-
-python3 processing_slim.py $WORKINGDIR $TREEFILE
-
-conda deactivate
-
-echo "DONE RUNNING PYTHON SCRIPT"
-d=`date +%m,%d,%Y,%H,%M`
-echo "TIME,END,PYTHON,$d"
-
-#generates:
-#pi and geographic distance matrices
 
 ### RUN STAN MODEL IN R ###
 
@@ -82,7 +36,7 @@ module load R/4.0.3
 d=`date +%m,%d,%Y,%H,%M`
 echo "TIME,START,EXE_WM,$d"
 
-Rscript exe_WM.R $WORKINGDIR $TREEFILE
+Rscript exe_WM.R $WORKINGDIR $TREEFILE $MODEL_FLAVOR
 echo "DONE RUNNING exe_WM.R SCRIPT"
 d=`date +%m,%d,%Y,%H,%M`
 echo "TIME,END,EXE_WM,$d"
