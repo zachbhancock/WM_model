@@ -32,8 +32,9 @@ if [ ! -d ./$logfilesdir ]; then mkdir ./$logfilesdir; fi
 
 #submit job to cluster
 for sigma in "${vector_of_sigma_values[@]}"
-for K in "${vector_of_K_values[@]}"
 do
+	for K in "${vector_of_K_values[@]}"
+	do
 	jid_pi=$(sbatch --job-name=$jobname \
 					--export=CPUS=$cpus,STORAGENODE=$storagenode,OUTDIR=$outdir,LOGFILESDIR=$logfilesdir,K=$K,SIGMA=$sigma \
 					--cpus-per-task=$cpus \
@@ -48,6 +49,7 @@ do
 	
 	echo "submitted job has sigma value $sigma and K value $K; running $n_iterations slim iterations"
 	echo ""
+	done
 done
 
 echo "all_pis_jids is $all_pis_jids"
