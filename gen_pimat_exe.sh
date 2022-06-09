@@ -28,8 +28,7 @@ cd $WORKINGDIR
 # note - if defining variables with -d for slim, don't include a defineConstant() line in slim script
 # text variables defined with -d should use syntax - "MYVAR='$MYVAR'"
 module purge
-module load GCC/9.3.0
-module load SLiM/3.6
+module load SLiM/3.7.1
 
 #format: month, day, year, hour (24 hr format), minutes
 d=`date +%m,%d,%Y,%H,%M`
