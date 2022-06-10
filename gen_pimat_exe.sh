@@ -28,6 +28,10 @@ cd $WORKINGDIR
 # note - if defining variables with -d for slim, don't include a defineConstant() line in slim script
 # text variables defined with -d should use syntax - "MYVAR='$MYVAR'"
 module purge
+module load GCC/6.4.0-2.28  OpenMPI/2.1.2
+module load GCC/6.4.0-2.28  OpenMPI/2.1.2-CUDA
+module load GNU/6.4.0-2.28  OpenMPI/2.1.2
+module load GNU/6.4.0-2.28  OpenMPI/2.1.2-CUDA
 module load SLiM/3.7.1
 
 #format: month, day, year, hour (24 hr format), minutes
