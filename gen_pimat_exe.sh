@@ -45,6 +45,9 @@ d=`date +%m,%d,%Y,%H,%M`
 echo "TIME,END,SLIM,$d"
 #generates tree sequence for each sigma and K combo
 
+echo these are the files that I currently have
+du -a
+
 ### PARSE TREE FILES IN PYTHON ###
 
 #module load GCCcore/11.1.0
