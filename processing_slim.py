@@ -16,7 +16,7 @@ rng = default_rng()
 WORKINGDIR = sys.argv[1]
 TREEFILE = sys.argv[2]
 prefix = WORKINGDIR + TREEFILE
-f = open(prefix+"_popsize.txt", "r")
+f = open(prefix+"_popsize", "r")
 N = f.read()
 N = int(N)
 print(f"WORKINGDIR is ", WORKINGDIR)
