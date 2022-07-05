@@ -8,7 +8,7 @@ logfilesdir=logfiles_wmModel #name of directory to create and then write log fil
 datesuffix=$(date +%m-%d-%Y.%H)
 outdir=$storagenode/ALL_wmModel_outputs-$datesuffix #name of directory to create and write all outputs to
 
-n_iterations=10 #number of iterations to run of each identical simulation
+model_flavor=wishart #value wishart or cmplnl
 
 #define some values to pass into slim
 vector_of_K_values=( 2.0 5.0 10.0 25.0 50.0 100.0)
@@ -32,46 +32,21 @@ if [ ! -d ./$logfilesdir ]; then mkdir ./$logfilesdir; fi
 
 #submit job to cluster
 for sigma in "${vector_of_sigma_values[@]}"
-for K in "${vector_of_K_values[@]}"
 do
-	jid_pi=$(sbatch --job-name=$jobname \
-					--export=CPUS=$cpus,STORAGENODE=$storagenode,OUTDIR=$outdir,LOGFILESDIR=$logfilesdir,K=$K,SIGMA=$sigma \
+	for K in "${vector_of_K_values[@]}"
+	do
+	sbatch --job-name=$jobname \
+					--export=CPUS=$cpus,STORAGENODE=$storagenode,OUTDIR=$outdir,LOGFILESDIR=$logfilesdir,K=$K,SIGMA=$sigma,MODEL_FLAVOR=$model_flavor \
 					--cpus-per-task=$cpus \
 					--mem-per-cpu=$ram_per_cpu \
-					--array=[0-$((n_iterations-1))]%n_iterations \
 					--output=./$logfilesdir/${jobname}_%A_slimIter_%a_sigma_${sigma}_K_${K}.out \
 					--error=./$logfilesdir/${jobname}_%A_slimIter_%a_sigma_${sigma}_K_${K}.err \
 					--time=$time \
-					$executable \
-					|awk -v "nID=$n_iterations" '{for (i=0; i<nID; i++) printf(":%s",$4"_"i)}')
-	declare "all_pis_jids=${jid_pi}${all_pis_jids}"
-	
-	echo "submitted job has sigma value $sigma and K value $K; running $n_iterations slim iterations"
-	echo ""
-done
-
-echo "all_pis_jids is $all_pis_jids"
-echo ""
-
-
-#---------------------------------------------------------
-#submit job to cluster after all above jobs finish that compiles all final outputs into one summary .txt file
-
-#note - dependency afterany says wait for all jobs to finish and then run (doesn't matter if jobs have exit status of 0 or not)
-
-jobname=run-compileoutputs #label for SLURM book-keeping
-executable=run-compileoutputs.sbatch #script to run
-
-sbatch --job-name=$jobname \
-					--export=CPUS=$cpus,STORAGENODE=$storagenode,OUTDIR=$outdir,LOGFILESDIR=$logfilesdir,SIGMA=$sigma,K=$K \
-					--cpus-per-task=$cpus \
-					--mem-per-cpu=$ram_per_cpu \
-					--output=./$logfilesdir/${jobname}_%A.out \
-					--error=./$logfilesdir/${jobname}_%A.err \
-					--dependency=afterany$(eval echo \$all_pis_jids) \
-					--kill-on-invalid-dep=yes \
-					--time=$time \
 					$executable
+	echo "submitted job has sigma value $sigma and K value $K"
+	echo ""
+	done
+done
 
 #DONE
 
