@@ -21,7 +21,8 @@ cat(args, sep = "\n")
 
 #define some variables (pulled in from bash script)
 workingdir = args[1]
-treefile = args[2] %>% gsub("/", "", .)
+model_flavor = args[2]
+#treefile = args[2] %>% gsub("/", "", .)
 #note to Zach for testing, run: treefile="linear_42014183_slimIter_0_sigma_0.5"
 #working dir is just the directory where "all our stuff" for one job (aka one value of sigma and one main slim iteration number) lives
 
@@ -32,23 +33,8 @@ print("so far we have loaded libraries and printed args")
 print("objects currently loaded in R:")
 ls()
 
-#read dist files
-gen.dist <- data.matrix(read.table(file=paste0(treefile, "-pi.csv"), header=TRUE))
-gen.dist <- as.matrix(gen.dist)
-gen.dist <- gen.dist[lower.tri(gen.dist)]
-gen.dist <- as.data.frame(gen.dist)
-geo.dist <- read.table(file=paste0(treefile, "-pi_locs.txt"), header = TRUE)
-coords.dist <- geo.dist[,c("x","y")]
-geo.dist <- fields::rdist(coords.dist)
-geo.dist <- as.matrix(geo.dist)
-geo.dist <- geo.dist[lower.tri(geo.dist)]
-geo.dist <- as.data.frame(geo.dist)
-dist.all <- cbind(gen.dist, geo.dist)
-names(dist.all)[1] <- "gen.dist"
-names(dist.all[2] <- "geo.dist"
-
 #get list of all K / sigma combos to process
-list_of_prefixes <- list.files(path = workingdir, pattern = paste0(treefile,"*"), full.names = FALSE) %>% 
+list_of_prefixes <- list.files(path = workingdir, pattern = paste0("wmModel_", "*"), full.names = FALSE) %>% 
   as.data.frame() %>% dplyr::rename("file" = ".") %>% separate(., file, into = c("prefix"), sep = "-", extra = "drop") %>% 
   distinct() %>% filter(stringr::str_detect(prefix, "K"))
 
@@ -62,7 +48,22 @@ for (prefix in list_of_prefixes$prefix) {
     separate(., prefix, into = c("slurm_job_id","slimIter","sigma","K"), sep = "_") %>% 
     dplyr::select(slurm_job_id, slimIter, sigma, K)
   
-  load(paste(prefix, "-est_out.Robj", sep=""), verbose=TRUE)
+  #read dist files
+  gen.dist <- data.matrix(read.table(file=paste0(prefix, "-pi.csv"), header=TRUE))
+  gen.dist <- as.matrix(gen.dist)
+  gen.dist <- gen.dist[lower.tri(gen.dist)]
+  gen.dist <- as.data.frame(gen.dist)
+  geo.dist <- read.table(file=paste0(prefix, "-pi_locs.txt"), header = TRUE)
+  coords.dist <- geo.dist[,c("x","y")]
+  geo.dist <- fields::rdist(coords.dist)
+  geo.dist <- as.matrix(geo.dist)
+  geo.dist <- geo.dist[lower.tri(geo.dist)]
+  geo.dist <- as.data.frame(geo.dist)
+  dist.all <- cbind(gen.dist, geo.dist)
+  names(dist.all)[1] <- "gen.dist"
+  names(dist.all[2] <- "geo.dist"
+  
+  load(paste(prefix, "-est_"[wishart, cmpLnL]"_out.Robj", sep=""), verbose=TRUE)
   col_pi <- rstan::extract(out$fit, "s", inc_warmup=TRUE, permute=FALSE)
   nbhd_pi <- rstan::extract(out$fit, "nbhd", inc_warmup=TRUE, permute=FALSE)
   inDeme_pi <- rstan::extract(out$fit, "inDeme", inc_warmup=TRUE, permute=FALSE)
@@ -79,22 +80,22 @@ for (prefix in list_of_prefixes$prefix) {
   wmModel_pi$delta_nbhd <- theo.nbhd - wmModel_pi$nbhd_pi
   wmModel_pi$model <- "Wischart"
   
-  load(paste(prefix, "-est_cmpLnL_out.Robj", sep=""), verbose=TRUE)
-  col_cmpLnL <- rstan::extract(out$fit, "s", inc_warmup=TRUE, permute=FALSE)
-  nbhd_cmpLnL <- rstan::extract(out$fit, "nbhd", inc_warmup=TRUE, permute=FALSE)
-  inDeme_cmpLnL <- rstan::extract(out$fit, "inDeme", inc_warmup=TRUE, permute=FALSE)
-  m_cmpLnL <- rstan::extract(out$fit, "m", inc_warmup=TRUE, permute=FALSE)
-  post_cmpLnL <- rstan::get_logposterior(out$fit,inc_warmup=FALSE)
-  post_cmpLnL <- data.frame(matrix(unlist(post_cmpLnL), nrow=length(post_cmpLnL), byrow=FALSE))
-  post_cmpLnL <- cbind(stack(post_cmpLnL[1:4]))
-  names(post_LnL)[1] <- "posterior"
-  col_cmpLnL <- plyr::adply(col_cmpLnL, c(1,2,3))
-  wmModel_cmpLnL <- cbind(col_cmpLnL, post_cmpLnL, nbhd_cmpLnL, inDeme_cmpLnL, m_cmpLnL) %>% 
-    dplyr::mutate(col_cmpLnL = 1 - V1, iterations = as.numeric(iterations)) %>% 
-    dplyr::select(-chains)
-  wmModel_cmpLnL$theo_nbhd <- 4*pi*wmModel_cmpLnL$K*(wmModel_cmpLnL*sigma)^2
-  wmModel_cmpLnL$delta_nbhd <- theo.nbhd - wmModel_pi$nbhd_pi
-  wmModel_cmpLnL$model <- "cmpLnL"
+  #load(paste(prefix, "-est_cmpLnL_out.Robj", sep=""), verbose=TRUE)
+  #col_cmpLnL <- rstan::extract(out$fit, "s", inc_warmup=TRUE, permute=FALSE)
+  #nbhd_cmpLnL <- rstan::extract(out$fit, "nbhd", inc_warmup=TRUE, permute=FALSE)
+  #inDeme_cmpLnL <- rstan::extract(out$fit, "inDeme", inc_warmup=TRUE, permute=FALSE)
+  #m_cmpLnL <- rstan::extract(out$fit, "m", inc_warmup=TRUE, permute=FALSE)
+  #post_cmpLnL <- rstan::get_logposterior(out$fit,inc_warmup=FALSE)
+  #post_cmpLnL <- data.frame(matrix(unlist(post_cmpLnL), nrow=length(post_cmpLnL), byrow=FALSE))
+  #post_cmpLnL <- cbind(stack(post_cmpLnL[1:4]))
+  #names(post_LnL)[1] <- "posterior"
+  #col_cmpLnL <- plyr::adply(col_cmpLnL, c(1,2,3))
+  #wmModel_cmpLnL <- cbind(col_cmpLnL, post_cmpLnL, nbhd_cmpLnL, inDeme_cmpLnL, m_cmpLnL) %>% 
+  #  dplyr::mutate(col_cmpLnL = 1 - V1, iterations = as.numeric(iterations)) %>% 
+  #  dplyr::select(-chains)
+  #wmModel_cmpLnL$theo_nbhd <- 4*pi*wmModel_cmpLnL$K*(wmModel_cmpLnL*sigma)^2
+  #wmModel_cmpLnL$delta_nbhd <- theo.nbhd - wmModel_pi$nbhd_pi
+  #wmModel_cmpLnL$model <- "cmpLnL"
   
   wmModel_all <- cbind(wmModel_pi, wmModel_cmpLnL)
   
