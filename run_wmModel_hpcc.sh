@@ -5,11 +5,11 @@
 #--------------- EXECUTABLE ---------------
 
 #define unique slurm jobid
-UNIQUEJOBID=${SLURM_ARRAY_JOB_ID}_"slimIter_"${SLURM_ARRAY_TASK_ID}
+UNIQUEJOBID=${SLURM_JOB_ID}
 #define working dir on execute node
-WORKINGDIR=/tmp/local/$SLURM_JOB_ID/$UNIQUEJOBID
+WORKINGDIR=/tmp/local/$SLURM_JOB_ID
 #define prefix name for outputs
-TREEFILE="/wmModel_"${UNIQUEJOBID}"_sigma_"$SIGMA"_K_"$K
+#TREEFILE="/wmModel_sigma_"$SIGMA"_K_"$K
 
 #check if these directories have been created; if not, make them
 if [ ! -d $WORKINGDIR ]; then mkdir $WORKINGDIR; fi
@@ -21,6 +21,9 @@ cp $SLURM_SUBMIT_DIR/wmModel_plots.R $WORKINGDIR
 cp $SLURM_SUBMIT_DIR/wm_lib.R $WORKINGDIR
 cp $SLURM_SUBMIT_DIR/models/wm_hom_cmpPar_mod_block_scaled.R $WORKINGDIR
 cp $SLURM_SUBMIT_DIR/models/wm_hom_cmpPar_cmpLnL_mod_block_scaled.R $WORKINGDIR
+cp $INDIR/wmModel_*_sigma_$SIGMA_K_$K-pi.csv $WORKINGDIR
+cp $INDIR/wmModel_*_sigma_$SIGMA_K_$K-pi_locs.txt $WORKINGDIR
+
 
 #move to execute node
 cd $WORKINGDIR
@@ -36,7 +39,8 @@ module load R/4.0.3
 d=`date +%m,%d,%Y,%H,%M`
 echo "TIME,START,EXE_WM,$d"
 
-Rscript exe_WM.R $WORKINGDIR $TREEFILE $MODEL_FLAVOR
+#Rscript exe_WM.R $WORKINGDIR $TREEFILE $MODEL_FLAVOR
+Rscript exe_WM.R $WORKINGDIR $MODEL_FLAVOR
 echo "DONE RUNNING exe_WM.R SCRIPT"
 d=`date +%m,%d,%Y,%H,%M`
 echo "TIME,END,EXE_WM,$d"
