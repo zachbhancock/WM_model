@@ -7,6 +7,7 @@ logfilesdir=logfiles_wmModel #name of directory to create and then write log fil
 
 datesuffix=$(date +%m-%d-%Y.%H)
 outdir=$storagenode/ALL_wmModel_outputs-$datesuffix #name of directory to create and write all outputs to
+indir=$storagenode/allpimat_wmModel_outputs-06-16-2022.13
 
 model_flavor=wishart #value wishart or cmplnl
 
@@ -24,7 +25,7 @@ time=168:00:00
 
 #---------------------------------------------------------
 
-jobname=run-collectpi #label for SLURM book-keeping
+jobname=wm_Model #label for SLURM book-keeping
 executable=run_wmModel_hpcc.sh #script to run
 
 #check if logfiles directory has been created in submit dir yet; if not, make one
@@ -36,11 +37,11 @@ do
 	for K in "${vector_of_K_values[@]}"
 	do
 	sbatch --job-name=$jobname \
-					--export=CPUS=$cpus,STORAGENODE=$storagenode,OUTDIR=$outdir,LOGFILESDIR=$logfilesdir,K=$K,SIGMA=$sigma,MODEL_FLAVOR=$model_flavor \
+					--export=CPUS=$cpus,STORAGENODE=$storagenode,OUTDIR=$outdir,INDIR=$indir,LOGFILESDIR=$logfilesdir,K=$K,SIGMA=$sigma,MODEL_FLAVOR=$model_flavor \
 					--cpus-per-task=$cpus \
 					--mem-per-cpu=$ram_per_cpu \
-					--output=./$logfilesdir/${jobname}_%A_slimIter_%a_sigma_${sigma}_K_${K}.out \
-					--error=./$logfilesdir/${jobname}_%A_slimIter_%a_sigma_${sigma}_K_${K}.err \
+					--output=./$logfilesdir/${jobname}_%A_sigma_${sigma}_K_${K}.out \
+					--error=./$logfilesdir/${jobname}_%A_sigma_${sigma}_K_${K}.err \
 					--time=$time \
 					$executable
 	echo "submitted job has sigma value $sigma and K value $K"
