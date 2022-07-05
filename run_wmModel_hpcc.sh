@@ -19,8 +19,8 @@ if [ ! -d $OUTDIR ]; then mkdir $OUTDIR; fi
 cp $SLURM_SUBMIT_DIR/exe_WM.R $WORKINGDIR
 cp $SLURM_SUBMIT_DIR/wmModel_plots.R $WORKINGDIR
 cp $SLURM_SUBMIT_DIR/wm_lib.R $WORKINGDIR
-cp $SLURM_SUBMIT_DIR/wm_hom_cmpPar_mod_block_scaled.R $WORKINGDIR
-cp $SLURM_SUBMIT_DIR/wm_hom_cmpPar_cmpLnL_mod_block_scaled.R $WORKINGDIR
+cp $SLURM_SUBMIT_DIR/models/wm_hom_cmpPar_mod_block_scaled.R $WORKINGDIR
+cp $SLURM_SUBMIT_DIR/models/wm_hom_cmpPar_cmpLnL_mod_block_scaled.R $WORKINGDIR
 
 #move to execute node
 cd $WORKINGDIR
