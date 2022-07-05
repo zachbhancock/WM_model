@@ -25,7 +25,7 @@ time=168:00:00
 #---------------------------------------------------------
 
 jobname=run-collectpi #label for SLURM book-keeping
-executable=run-collectpi.sbatch #script to run
+executable=run_wmModel_hpcc.sh #script to run
 
 #check if logfiles directory has been created in submit dir yet; if not, make one
 if [ ! -d ./$logfilesdir ]; then mkdir ./$logfilesdir; fi
