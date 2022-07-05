@@ -50,10 +50,12 @@ echo ""
 #-estplots.pdf
 #for each sigma and K combo
 
+cp wmModel_* $OUTDIR
+
 d=`date +%m,%d,%Y,%H,%M`
 echo "TIME,START,COLLECT_PLOTS,$d"
 
-Rscript wmModel_plots.R $WORKINGDIR $TREEFILE
+Rscript wmModel_plots.R $WORKINGDIR $MODEL_FLAVOR
 #echo "DONE RUNNING collectpi_plots.R SCRIPT"
 #-est_values.txt
 #-est_plot.pdf
