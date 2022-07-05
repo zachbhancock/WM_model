@@ -27,10 +27,10 @@ cat(args, sep = "\n")
 
 #define some variables (pulled in from bash script)
 workingdir = args[1]
-treefile = args[2] %>% gsub("/", "", .)
-model_flavor = args[3]
+#treefile = args[2] %>% gsub("/", "", .)
+model_flavor = args[2]
 print(paste0("workingdir is ", workingdir))
-print(paste0("treefile is ", treefile))
+#print(paste0("treefile is ", treefile))
 
 #for local testing, example of formatting for treefile variable
 #treefile = "/linear_46352997_slimIter_11_sigma_0.2"
@@ -55,9 +55,11 @@ ls()
 options(warn=1)
 
 #get list of all square iterations and square sizes to process
-list_of_prefixes <- list.files(path = workingdir, pattern = paste0(treefile,"*"), full.names = FALSE) %>% 
+list_of_prefixes <- list.files(path = workingdir, pattern = paste0("wmModel_", "*"), full.names = FALSE) %>% 
   as.data.frame() %>% dplyr::rename("file" = ".") %>% separate(., file, into = c("prefix"), sep = "-", extra = "drop") %>% 
   distinct() %>% filter(stringr::str_detect(prefix, "K")) %>% filter(stringr::str_detect(prefix, "sigma"))
+
+print(list_of_prefixes)
 
 #process for each K and sigma combo
 for (prefix in list_of_prefixes$prefix){
