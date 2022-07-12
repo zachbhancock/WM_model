@@ -55,7 +55,7 @@ cp wmModel_* $OUTDIR
 d=`date +%m,%d,%Y,%H,%M`
 echo "TIME,START,COLLECT_PLOTS,$d"
 
-Rscript wmModel_plots.R $WORKINGDIR #$MODEL_FLAVOR
+Rscript wmModel_plots.R $WORKINGDIR
 #echo "DONE RUNNING collectpi_plots.R SCRIPT"
 #-est_values.txt
 #-est_plot.pdf
