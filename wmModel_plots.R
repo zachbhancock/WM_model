@@ -122,7 +122,7 @@ for (loop.iter in 1:length(list_of_prefixes$Robjfile)) {
   wmModel_out <- rbind(wmModel_out, wmModel_pi)
   
 }
-wmModel_pi <- wmModel_out %>% filter(is.na(model_flavor)==FALSE)
+wmModel_pi <- wmModel_out %>% filter(is.na(slurm_job_id)==FALSE)
 
 #save text output
 write.table(wmModel_pi, file=paste0(workingdir, "/", prefix, "-est.txt"))
