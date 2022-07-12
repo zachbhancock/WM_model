@@ -53,7 +53,7 @@ transformed parameters {
 model {
 	s ~ beta(1,0.1);					// prior on minimum relatedness
 	m ~ normal(0,0.1);					// prior on scaled migration rate
-	nbhd ~ normal(10,10);				// prior on neighborhood size
+	nbhd ~ normal(100,1000);				// prior on neighborhood size
 	inDeme ~ beta(1,0.01);				// prior on within-deme p(IBD)
 	nugget ~ normal(0,1);				// prior on nugget
 	Lhom_scl ~ wishart(L, pHom_scl);			// likelihood function
