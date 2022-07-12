@@ -21,7 +21,7 @@ cat(args, sep = "\n")
 
 #define some variables (pulled in from bash script)
 workingdir = args[1]
-model_flavor = args[2]
+#model_flavor = args[2]
 #treefile = args[2] %>% gsub("/", "", .)
 #note to Zach for testing, run: treefile="linear_42014183_slimIter_0_sigma_0.5"
 #working dir is just the directory where "all our stuff" for one job (aka one value of sigma and one main slim iteration number) lives
@@ -34,26 +34,39 @@ print("objects currently loaded in R:")
 ls()
 
 #get list of all K / sigma combos to process
-list_of_prefixes <- list.files(path = workingdir, pattern = paste0("wmModel_", "*"), full.names = FALSE) %>% 
-  as.data.frame() %>% dplyr::rename("file" = ".") %>% separate(., file, into = c("prefix"), sep = "-", extra = "drop") %>% 
-  distinct() %>% filter(stringr::str_detect(prefix, "K"))
+list_of_prefixes <- list.files(path = workingdir, pattern = paste0("*_out.Robj"), full.names = FALSE) %>% 
+  as.data.frame() %>% dplyr::rename("Robjfile" = ".") %>% 
+  separate(., Robjfile, into = c("prefix","temp"), sep = "-", extra = "drop", remove = FALSE) %>% 
+  distinct() %>% 
+  separate(., temp, into = c("garbage","model_flavor"), sep = "_", extra = "drop") %>% dplyr::select(-garbage) %>%  distinct()
 
 #process each square iteration / size combo
-for (prefix in list_of_prefixes$prefix) {
+wmModel_out <- data.frame("slurm_job_id"=NA, "slimIter"=NA, "sigma"=NA, "K"=NA,
+                          "model_flavor"=NA, "chain"=NA, "iteration"=NA,
+                          "col_pi"=NA, "nbhd"=NA, "inDeme"=NA, "m"=NA, "posterior"=NA,
+                          "theo_nbhd"=NA, "delta_nbhd"=NA)
+
+for (loop.iter in 1:length(list_of_prefixes$Robjfile)) {
   
-  print(paste0("prefix is: ", prefix))  
+  #define some variables
+  Robjfile = list_of_prefixes[loop.iter, ]$Robjfile
+  prefix = list_of_prefixes[loop.iter, ]$prefix
+  model_flavor = list_of_prefixes[loop.iter, ]$model_flavor
   
-  #get label info (added by Rachel / modified by Zach)
-  labels <- prefix %>% as.data.frame() %>% dplyr::rename("prefix"=".") %>% 
-    separate(., prefix, into = c("slurm_job_id","slimIter","sigma","K"), sep = "_") %>% 
-    dplyr::select(slurm_job_id, slimIter, sigma, K)
+  print(paste0("starting file: ", Robjfile))
   
+  labels <- prefix %>% as.data.frame() %>% dplyr::rename("prefix"=".") %>%
+    separate(., prefix, into = c("garbage","slurm_job_id","garbage2","slimIter","garbage3","sigma","garbage4","K"), sep = "_") %>%
+    mutate(model_flavor = model_flavor) %>% 
+    mutate(K = as.numeric(K), sigma = as.numeric(sigma)) %>% 
+    dplyr::select(slurm_job_id, slimIter, sigma, K, model_flavor)
+
   #read dist files
-  gen.dist <- data.matrix(read.table(file=paste0(prefix, "-pi.csv"), header=TRUE))
+  gen.dist <- data.matrix(read.table(file=paste0(workingdir, "/", prefix, "-pi.csv"), header=TRUE))
   gen.dist <- as.matrix(gen.dist)
   gen.dist <- gen.dist[lower.tri(gen.dist)]
   gen.dist <- as.data.frame(gen.dist)
-  geo.dist <- read.table(file=paste0(prefix, "-pi_locs.txt"), header = TRUE)
+  geo.dist <- read.table(file=paste0(workingdir, "/", prefix, "-pi_locs.txt"), header = TRUE)
   coords.dist <- geo.dist[,c("x","y")]
   geo.dist <- fields::rdist(coords.dist)
   geo.dist <- as.matrix(geo.dist)
@@ -61,64 +74,79 @@ for (prefix in list_of_prefixes$prefix) {
   geo.dist <- as.data.frame(geo.dist)
   dist.all <- cbind(gen.dist, geo.dist)
   names(dist.all)[1] <- "gen.dist"
-  names(dist.all[2] <- "geo.dist"
+  names(dist.all)[2] <- "geo.dist"
   
-  load(paste(prefix, "-est_"[wishart, cmpLnL]"_out.Robj", sep=""), verbose=TRUE)
+  #read WM_model output
+  load(paste0(workingdir, "/", Robjfile), verbose=TRUE)
   col_pi <- rstan::extract(out$fit, "s", inc_warmup=TRUE, permute=FALSE)
   nbhd_pi <- rstan::extract(out$fit, "nbhd", inc_warmup=TRUE, permute=FALSE)
   inDeme_pi <- rstan::extract(out$fit, "inDeme", inc_warmup=TRUE, permute=FALSE)
   m_pi <- rstan::extract(out$fit, "m", inc_warmup=TRUE, permute=FALSE)
-  post_pi <- rstan::get_logposterior(out$fit,inc_warmup=FALSE)
-  post_pi <- data.frame(matrix(unlist(post_pi), nrow=length(post_pi), byrow=FALSE))
-  post_pi <- cbind(stack(post_pi[1:4]))
-  names(post_pi)[1] <- "posterior"
-  col_pi <- plyr::adply(col_pi, c(1,2,3))
-  wmModel_pi <- cbind(col_pi, post_pi, nbhd_pi, inDeme_pi, m_pi) %>% 
-    dplyr::mutate(col_pi = 1 - V1, iterations = as.numeric(iterations)) %>% 
-    dplyr::select(-chains)
-  wmModel_pi$theo_nbhd <- 4*pi*wmModel_pi$K*(wmModel_pi*sigma)^2
-  wmModel_pi$delta_nbhd <- theo.nbhd - wmModel_pi$nbhd_pi
-  wmModel_pi$model <- "Wischart"
+  post_pi <- rstan::get_logposterior(out$fit, inc_warmup=FALSE)
+  #make long
+  col_pi <- plyr::adply(col_pi, c(1,2,3)) %>% 
+    dplyr::rename("iteration"="iterations", "chain"="chains") %>% 
+    mutate(chain = gsub("chain:","",chain)) %>%
+    mutate(col_pi = 1 - V1) %>% dplyr::select(-parameters,-V1)
+  nbhd_pi <- plyr::adply(nbhd_pi, c(1,2,3)) %>% 
+    dplyr::rename("iteration"="iterations", "chain"="chains", "nbhd"="V1") %>% 
+    mutate(chain = gsub("chain:","",chain)) %>% dplyr::select(-parameters)
+  inDeme_pi <- plyr::adply(inDeme_pi, c(1,2,3)) %>% 
+    dplyr::rename("iteration"="iterations", "chain"="chains", "inDeme"="V1") %>% 
+    mutate(chain = gsub("chain:","",chain)) %>% dplyr::select(-parameters)
+  m_pi <- plyr::adply(m_pi, c(1,2,3)) %>% 
+    dplyr::rename("iteration"="iterations", "chain"="chains",  "m"="V1") %>% 
+    mutate(chain = gsub("chain:","",chain)) %>% dplyr::select(-parameters)
+  post_pi <- data.frame(matrix(unlist(post_pi), nrow=length(post_pi), byrow=FALSE)) %>% t(.) %>% as.data.frame() %>% 
+    mutate(iteration = gsub("X","",row.names(.))) %>%
+    pivot_longer(., names_to = "chain", values_to = "posterior", cols = 1:4) %>% 
+    mutate(chain = gsub("V","",chain))
+  labels_pi <- do.call("rbind", replicate(nrow(col_pi), labels, simplify = FALSE))
+  #bind
+  wmModel_pi <- cbind(labels_pi, col_pi)
+  wmModel_pi <- wmModel_pi %>% 
+    merge(., nbhd_pi, by = c("iteration","chain")) %>% 
+    merge(., inDeme_pi, by = c("iteration","chain")) %>% 
+    merge(., m_pi, by = c("iteration","chain")) %>% 
+    merge(., post_pi, by = c("iteration","chain"))
   
-  #load(paste(prefix, "-est_cmpLnL_out.Robj", sep=""), verbose=TRUE)
-  #col_cmpLnL <- rstan::extract(out$fit, "s", inc_warmup=TRUE, permute=FALSE)
-  #nbhd_cmpLnL <- rstan::extract(out$fit, "nbhd", inc_warmup=TRUE, permute=FALSE)
-  #inDeme_cmpLnL <- rstan::extract(out$fit, "inDeme", inc_warmup=TRUE, permute=FALSE)
-  #m_cmpLnL <- rstan::extract(out$fit, "m", inc_warmup=TRUE, permute=FALSE)
-  #post_cmpLnL <- rstan::get_logposterior(out$fit,inc_warmup=FALSE)
-  #post_cmpLnL <- data.frame(matrix(unlist(post_cmpLnL), nrow=length(post_cmpLnL), byrow=FALSE))
-  #post_cmpLnL <- cbind(stack(post_cmpLnL[1:4]))
-  #names(post_LnL)[1] <- "posterior"
-  #col_cmpLnL <- plyr::adply(col_cmpLnL, c(1,2,3))
-  #wmModel_cmpLnL <- cbind(col_cmpLnL, post_cmpLnL, nbhd_cmpLnL, inDeme_cmpLnL, m_cmpLnL) %>% 
-  #  dplyr::mutate(col_cmpLnL = 1 - V1, iterations = as.numeric(iterations)) %>% 
-  #  dplyr::select(-chains)
-  #wmModel_cmpLnL$theo_nbhd <- 4*pi*wmModel_cmpLnL$K*(wmModel_cmpLnL*sigma)^2
-  #wmModel_cmpLnL$delta_nbhd <- theo.nbhd - wmModel_pi$nbhd_pi
-  #wmModel_cmpLnL$model <- "cmpLnL"
+  wmModel_pi <- wmModel_pi %>% 
+    mutate(theo_nbhd = 4*pi*K*(sigma^2)) %>% 
+    mutate(delta_nbhd = theo_nbhd - nbhd)
   
-  wmModel_all <- cbind(wmModel_pi, wmModel_cmpLnL)
+  wmModel_pi <- wmModel_pi %>% dplyr::select(slurm_job_id, slimIter, sigma, K,
+                                             model_flavor, chain, iteration,
+                                             col_pi, nbhd, inDeme, m, posterior,
+                                             theo_nbhd, delta_nbhd)
+  
+  wmModel_out <- rbind(wmModel_out, wmModel_pi)
   
 }
+wmModel_pi <- wmModel_out %>% filter(is.na(model_flavor)==FALSE)
 
-write.table(wmModel_pi, file=paste(treefile, "-wmModel_est.txt", sep=""))
+#save text output
+write.table(wmModel_pi, file=paste0(workingdir, "/", prefix, "-est.txt"))
 
-pdf(file=paste(prefix, "-nhbd_K.pdf", sep=""))
-est.plot <- ggplot(wmModel_all, aes(x=K, y=nbhd_pi, fill=sigma, shape=model)) + geom_point(size=2)
+#plot
+pdf(file=paste0(workingdir, "/", prefix, "-wmModel_plots.pdf"))
+est.plot <- wmModel_pi %>% ggplot() + 
+  geom_point(aes(x=K, y=nbhd, fill=sigma, shape=model_flavor), size=2, shape = 21)
 print(est.plot)
-dev.off()
 
-pdf(file=paste(prefix, "-nhbd_delta_K.pdf", sep=""))
-delta.plot <- ggplot(wmModel_all, aes(x=K, y=delta_nbhd, fill=sigma, shape=model)) + geom_point(size=2)
+delta.plot <- wmModel_pi %>% ggplot() + 
+  geom_point(aes(x=K, y=delta_nbhd, fill=sigma, shape=model_flavor), size=2, shape = 21)
 print(delta.plot)
-dev.off()
 
-pdf(file=paste(prefix, "-col_K.pdf", sep=""))
-col_K.plot <- ggplot(wmModel_all, aes(x=K, y=col_pi, fill=sigma, shape=model)) + geom_point(size=2)
+col_K.plot <- wmModel_pi %>% ggplot() + 
+  geom_point(aes(x=K, y=col_pi, fill=sigma, shape=model_flavor), size=2, shape = 21)
+print(col_K.plot)
+
+col_K.plot <- wmModel_pi %>% ggplot() + 
+  geom_point(aes(x=K, y=inDeme, fill=sigma, shape=model_flavor), size=2, shape = 21)
 print(col_K.plot)
 dev.off()
 
-pdf(file=paste(prefix, "-inDeme_K.pdf", sep=""))
-col_K.plot <- ggplot(wmModel_all, aes(x=K, y=inDeme_pi, fill=sigma, shape=model)) + geom_point(size=2)
-print(col_K.plot)
-dev.off()
+#end
+
+
+
