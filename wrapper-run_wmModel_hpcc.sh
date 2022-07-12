@@ -8,6 +8,7 @@ logfilesdir=logfiles_wmModel #name of directory to create and then write log fil
 datesuffix=$(date +%m-%d-%Y.%H)
 outdir=$storagenode/ALL_wmModel_outputs-$datesuffix #name of directory to create and write all outputs to
 indir=$storagenode/allpimat_wmModel_outputs-06-16-2022.13
+finaldir=$storagenode/summary_files #where the models go to die
 
 model_flavor=wishart #value wishart or cmplnl
 
@@ -36,18 +37,44 @@ for sigma in "${vector_of_sigma_values[@]}"
 do
 	for K in "${vector_of_K_values[@]}"
 	do
-	sbatch --job-name=$jobname \
+	jid_pi=$(sbatch --job-name=$jobname \
 					--export=CPUS=$cpus,STORAGENODE=$storagenode,OUTDIR=$outdir,INDIR=$indir,LOGFILESDIR=$logfilesdir,K=$K,SIGMA=$sigma,MODEL_FLAVOR=$model_flavor \
 					--cpus-per-task=$cpus \
 					--mem-per-cpu=$ram_per_cpu \
 					--output=./$logfilesdir/${jobname}_%A_sigma_${sigma}_K_${K}.out \
 					--error=./$logfilesdir/${jobname}_%A_sigma_${sigma}_K_${K}.err \
 					--time=$time \
-					$executable
+					$executable \
+					|awk -v "nID=$n_iterations" '{for (i=0; i<nID; i++) printf(":%s",$4"_"i)}')
 	echo "submitted job has sigma value $sigma and K value $K"
 	echo ""
+	
 	done
+	declare "all_pis_jids=${jid_pi}${all_pis_jids}"
+
 done
+
+echo "all_pis_jids is $all_pis_jids"
+
+
+#---------------------------------------------------------
+#submit job to cluster after all above jobs finish that compiles all final outputs into one summary .txt file
+
+#note - dependency afterany says wait for all jobs to finish and then run (doesn't matter if jobs have exit status of 0 or not)
+
+jobname=run-compileoutputs #label for SLURM book-keeping
+executable=run_collate_all.sh #script to run
+
+sbatch --job-name=$jobname \
+					--export=CPUS=$cpus,STORAGENODE=$storagenode,OUTDIR=$outdir,LOGFILESDIR=$logfilesdir,FINALDIR=$finaldir \
+					--cpus-per-task=$cpus \
+					--mem-per-cpu=$ram_per_cpu \
+					--output=./$logfilesdir/${jobname}_%A.out \
+					--error=./$logfilesdir/${jobname}_%A.err \
+					--dependency=afterany$(eval echo \$all_pis_jids) \
+					--kill-on-invalid-dep=yes \
+					--time=$time \
+					$executable
 
 #DONE
 
