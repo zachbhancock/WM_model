@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#this is an array job - runs one simulation per job
-
 #--------------- EXECUTABLE ---------------
 
 #define unique slurm jobid
