@@ -59,27 +59,3 @@ for (loop.iter in 1:length(list_of_txtfiles)) {
 #remove empty first row of df that we set up above
 df <- df %>% dplyr::filter(is.na(slurm_job_id)==F)
 write.table(df, file=paste(workingdir,"alloutputs-",Sys.Date(),".txt", sep=""))
-
-
-
-# !!! START HERE !!! #
-
-#summarize to mean and SD for 250 estimated values from chain with best posterior, 1000 true values, and then keep one single best posterior estimate
-df.summary <- df %>% group_by(slurm_job_id, slimIter, sigma, model_flavor, value) %>% 
-  dplyr::summarise(mean.pi = mean(gen.dist), sd.pi = sd(gen.dist)) %>% 
-  ungroup()
-
-#do a few quick checks
-# df.summary %>% distinct(slurm_job_id) %>% nrow() #should = N sigma values
-# df.summary %>% distinct(slimIter) %>% nrow() #should = N slim iterations
-# df.summary %>% distinct(sigma) %>% nrow() #should = N sigma values
-
-# df.summary %>% group_by(slimIter,sigma) %>% summarise(n.values = n()) %>% ungroup() %>% distinct(n.values) #should be 3
-# df.summary %>% dplyr::select(slimIter,sigma,squareRep) %>% distinct() %>% 
-#   group_by(slimIter,sigma) %>% summarise(n=n()) %>% group_by(sigma) %>% summarise(n=n()) #should be N sigma values long and n should = N slim iters
-
-#save full compiled output
-write.table(df.summary, file=paste0(workingdir,"summary_alloutputs-",Sys.Date(),".txt"))
-
-
-#graveyard ----------
