@@ -46,12 +46,11 @@ do
 					--time=$time \
 					$executable \
 					|awk -v "nID=$n_iterations" '{for (i=0; i<nID; i++) printf(":%s",$4"_"i)}')
+				declare "all_pis_jids=${jid_pi}${all_pis_jids}"
 	echo "submitted job has sigma value $sigma and K value $K"
 	echo ""
 	
 	done
-	declare "all_pis_jids=${jid_pi}${all_pis_jids}"
-
 done
 
 echo "all_pis_jids is $all_pis_jids"
