@@ -45,14 +45,16 @@ do
 					--error=./$logfilesdir/${jobname}_%A_sigma_${sigma}_K_${K}.err \
 					--time=$time \
 					$executable \
-					|awk -v "nID=$n_iterations" '{for (i=0; i<nID; i++) printf(":%s",$4"_"i)}')
-				declare "all_pis_jids=${jid_pi}${all_pis_jids}"
-	echo "submitted job has sigma value $sigma and K value $K"
+					|cut -d " " -f 4)
+	jid_pi=:${jid_pi}
+	echo "submitted job has sigma $sigma and K $K and jid_pi $jid_pi"
 	echo ""
-	
+	declare "all_pis_jids=${jid_pi}${all_pis_jids}"
 	done
+	
 done
 
+echo "DONE SUBMITTING ALL $jobname jobs"
 echo "all_pis_jids is $all_pis_jids"
 
 
