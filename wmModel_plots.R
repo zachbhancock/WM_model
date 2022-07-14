@@ -2,6 +2,7 @@
 # load libraries and source relevant functions
 library(ggplot2, warn.conflicts = FALSE, quietly = TRUE)
 library(plyr, warn.conflicts = FALSE, quietly = TRUE)
+library(tidyr, warn.conflicts = FALSE, quietly = TRUE)
 library(dplyr, warn.conflicts = FALSE, quietly = TRUE)
 
 #print session info and args for HPCC metadata/log files
@@ -36,9 +37,9 @@ ls()
 #get list of all K / sigma combos to process
 list_of_prefixes <- list.files(path = workingdir, pattern = paste0("*_out.Robj"), full.names = FALSE) %>% 
   as.data.frame() %>% dplyr::rename("Robjfile" = ".") %>% 
-  separate(., Robjfile, into = c("prefix","temp"), sep = "-", extra = "drop", remove = FALSE) %>% 
+  tidyr::separate(., Robjfile, into = c("prefix","temp"), sep = "-", extra = "drop", remove = FALSE) %>% 
   distinct() %>% 
-  separate(., temp, into = c("garbage","model_flavor"), sep = "_", extra = "drop") %>% dplyr::select(-garbage) %>%  distinct()
+  tidyr::separate(., temp, into = c("garbage","model_flavor"), sep = "_", extra = "drop") %>% dplyr::select(-garbage) %>%  distinct()
 
 #process each square iteration / size combo
 wmModel_out <- data.frame("slurm_job_id"=NA, "slimIter"=NA, "sigma"=NA, "K"=NA,
@@ -56,7 +57,7 @@ for (loop.iter in 1:length(list_of_prefixes$Robjfile)) {
   print(paste0("starting file: ", Robjfile))
   
   labels <- prefix %>% as.data.frame() %>% dplyr::rename("prefix"=".") %>%
-    separate(., prefix, into = c("garbage","slurm_job_id","garbage2","slimIter","garbage3","sigma","garbage4","K"), sep = "_") %>%
+    tidyr::separate(., prefix, into = c("garbage","slurm_job_id","garbage2","slimIter","garbage3","sigma","garbage4","K"), sep = "_") %>%
     mutate(model_flavor = model_flavor) %>% 
     mutate(K = as.numeric(K), sigma = as.numeric(sigma)) %>% 
     dplyr::select(slurm_job_id, slimIter, sigma, K, model_flavor)
