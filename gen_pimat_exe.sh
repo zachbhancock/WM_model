@@ -38,7 +38,7 @@ module load SLiM/3.7.1
 d=`date +%m,%d,%Y,%H,%M`
 echo "TIME,START,SLIM,$d"
 
-slim -d K=$K -d SIGMA=$SIGMA -d "WORKINGDIR='$WORKINGDIR'" -d "TREEFILE='$TREEFILE'" -d "n='$SLURM_ARRAY_TASK_ID'" test.slim
+slim -d K=$K -d SIGMA=$SIGMA -d "WORKINGDIR='$WORKINGDIR'" -d "TREEFILE='$TREEFILE'" -d "n='$SLURM_ARRAY_TASK_ID'" torus_model.slim
 
 echo "DONE RUNNING SLIM"
 d=`date +%m,%d,%Y,%H,%M`
