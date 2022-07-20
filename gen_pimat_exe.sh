@@ -16,7 +16,7 @@ if [ ! -d $WORKINGDIR ]; then mkdir $WORKINGDIR; fi
 if [ ! -d $OUTDIR ]; then mkdir $OUTDIR; fi
 
 #copy scripts to execute node
-cp $SLURM_SUBMIT_DIR/test.slim $WORKINGDIR
+cp $SLURM_SUBMIT_DIR/torus_model.slim $WORKINGDIR
 cp $SLURM_SUBMIT_DIR/processing_slim.py $WORKINGDIR
 
 #move to execute node
