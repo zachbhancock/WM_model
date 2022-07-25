@@ -8,7 +8,7 @@ initialize() {
     //defineConstant("K", 2);  // carrying-capacity density
 	 catn(c("WORKINGDIR =", WORKINGDIR));
 	 catn(c("n =", n));
-	 catn(c("TREEFILE =", TREEFILE));    
+	 //catn(c("TREEFILE =", TREEFILE));    
     catn(c("SIGMA =", SIGMA));
     catn(c("K =", K));
     defineConstant("G", 1e8);  // genome length
@@ -36,7 +36,7 @@ reproduction() {
         for (i in seqLen(nOff)) {
            pos = individual.spatialPosition + rnorm(2, 0, SIGMA);
            offspring = p1.addCrossed(individual, mate);
-           offspring.setSpatialPosition(p1.pointPeroidic(pos));
+           offspring.setSpatialPosition(p1.pointPeriodic(pos));
           	}
         }
         return;
