@@ -7,7 +7,7 @@ logfilesdir=logfiles_wmModel #name of directory to create and then write log fil
 
 datesuffix=$(date +%m-%d-%Y.%H)
 outdir=$storagenode/ALL_wmModel_outputs-$datesuffix #name of directory to create and write all outputs to
-indir=$storagenode/allpimat_wmModel_outputs-06-16-2022.13
+indir=$storagenode/allpimat_wmModel_outputs-07-25-2022.12
 finaldir=$storagenode/summary_files #where the models go to die
 
 model_flavor=wishart #value wishart or cmplnl
