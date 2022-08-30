@@ -39,7 +39,7 @@ transformed data {
 }
 parameters {
 	real<lower=0> nbhd;				// Wright's neighborhood size
-	real<lower=0> m;					// scaled migration rate
+	real<lower=0> logm;					// scaled migration rate
 	real<lower=0> inDeme;				// within deme p(IBD)
 	real<lower=0,upper=1> s;			// minimum rate of IBD
 	real<lower=0> nugget;				// nugget
@@ -47,12 +47,14 @@ parameters {
 transformed parameters {
 	matrix[N,N] pHom;					// probability of being homozygous
 	matrix[N,N] pHom_scl;					// probability of being homozygous
+	real m;
 	pHom = probHom(N, k, s, m, nbhd, inDeme, nugget, geoDist);
 	pHom_scl = (pHom-scl_min)/scl_max;
+	m = exp(logm);
 }
 model {
 	s ~ beta(1,0.1);					// prior on minimum relatedness
-	m ~ normal(0,0.1);					// prior on scaled migration rate
+	logm ~ uniform(-30,0);					// prior on scaled migration rate
 	nbhd ~ normal(100,1000);				// prior on neighborhood size
 	inDeme ~ beta(1,0.01);				// prior on within-deme p(IBD)
 	nugget ~ normal(0,1);				// prior on nugget
