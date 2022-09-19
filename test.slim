@@ -75,5 +75,6 @@ catn("Reached generation 50k");
 	outname= WORKINGDIR+TREEFILE;
 	sim.treeSeqOutput(outname);
 	writeFile(outname + "_popsize", paste(p1.individualCount));
+	writeFile(outname + "_density", paste(p1.individualCount / 625));
 	sim.simulationFinished();
 	}
