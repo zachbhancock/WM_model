@@ -39,7 +39,7 @@ transformed data {
 }
 parameters {
 	real<lower=0> nbhd;				// Wright's neighborhood size
-	real<lower=0> logm;					// scaled migration rate
+	real<upper=0> logm;					// scaled migration rate
 	real<lower=0> inDeme;				// within deme p(IBD)
 	real<lower=0,upper=1> s;			// minimum rate of IBD
 	real<lower=0> nugget;				// nugget
