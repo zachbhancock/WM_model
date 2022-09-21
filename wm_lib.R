@@ -78,7 +78,8 @@ generateInitPars <- function(dataBlock,breakLimit=1e4,nChains){
 			while(s==1){
 				s <- rbeta(1,0.8,0.2)			
 			}
-		m <- abs(rnorm(1,0.1,0.1))
+		logm <- runif(1,min=-30,max=0)
+		m <- exp(logm)
 		nbhd <- abs(rnorm(1,1,10))
 		inDeme <- rbeta(1,0.9,0.5)
 		nugget <- abs(rnorm(1,0.05,0.01))
@@ -91,7 +92,7 @@ generateInitPars <- function(dataBlock,breakLimit=1e4,nChains){
 		stop("\nunable to generate initial parameters that generate a positive-definite covariance matrix\n")
 	}
 	initPars <- list("s"=s,
-				 	 "m"=m,
+				 	 "logm"=logm,
 				 	 "nbhd"=nbhd,
 				 	 "inDeme"=inDeme,
 				 	 "nugget"=nugget)
