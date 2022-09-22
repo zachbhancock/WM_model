@@ -1,11 +1,9 @@
 stanBlock <- "
 functions {
 	matrix probHom(int N, real k, real s, real m, real nbhd, real inDeme, real nugget, matrix geoDist) {
-		matrix[N,N] pHom;
-		matrix[N,N] nugMat;
+		matrix[N,N] pHom = rep_matrix(0,N,N);
+		matrix[N,N] nugMat = diag_matrix(rep_vector(nugget,N));
 		real pIBD;
-		pHom = rep_matrix(0,N,N);
-		nugMat = diag_matrix(rep_vector(nugget,N));
 		for(i in 1:N){
 			for(j in i:N){
 				if(geoDist[i,j] > k){
@@ -28,14 +26,10 @@ data {
 	matrix[N, N] geoDist; 				// matrix of pairwise geographic distance 
 }
 transformed data {
-	matrix[N,N] hom_scl;				// n.loci multiplied by the sample covariance
-	matrix[N,N] Lhom_scl;				// n.loci multiplied by the sample covariance
-	real<lower=0> scl_min;
-	real<lower=0> scl_max;
-	scl_min = min(hom);
-	scl_max = max(hom-scl_min);
-	hom_scl = (hom-scl_min)/scl_max;
-	Lhom_scl  = L * hom_scl;
+	real<lower=0> scl_min = min(hom);
+	real<lower=0> scl_max = max(hom-scl_min);
+	matrix[N,N] hom_scl = (hom-scl_min)/scl_max;				// n.loci multiplied by the sample covariance
+	matrix[N,N] Lhom_scl = L * hom_scl;				// n.loci multiplied by the sample covariance
 }
 parameters {
 	real<lower=0> nbhd;				// Wright's neighborhood size
@@ -45,12 +39,9 @@ parameters {
 	real<lower=0> nugget;				// nugget
 }
 transformed parameters {
-	matrix[N,N] pHom;					// probability of being homozygous
-	matrix[N,N] pHom_scl;					// probability of being homozygous
-	real m;
-	pHom = probHom(N, k, s, m, nbhd, inDeme, nugget, geoDist);
-	pHom_scl = (pHom-scl_min)/scl_max;
-	m = exp(logm);
+	real m = exp(logm);
+	matrix[N,N] pHom = probHom(N, k, s, m, nbhd, inDeme, nugget, geoDist);					// probability of being homozygous
+	matrix[N,N] pHom_scl = (pHom-scl_min)/scl_max;					// probability of being homozygous
 }
 model {
 	s ~ beta(1,0.1);					// prior on minimum relatedness
