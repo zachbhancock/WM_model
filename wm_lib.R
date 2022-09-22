@@ -83,6 +83,9 @@ generateInitPars <- function(dataBlock,breakLimit=1e4,nChains){
 		nbhd <- abs(rnorm(1,1,10))
 		inDeme <- rbeta(1,0.9,0.5)
 		nugget <- abs(rnorm(1,0.05,0.01))
+		logs <- log(s)
+		loginDeme <- log(inDeme)
+		lognugget <- log(nugget)
 		parHom <- makeParaHom(s,m,k,nbhd,inDeme,nugget,dataBlock$geoDist)
 		parHom <- (parHom-scl_min)/scl_max
 		posdef <- all(eigen(parHom)$values > 0)
@@ -91,11 +94,11 @@ generateInitPars <- function(dataBlock,breakLimit=1e4,nChains){
 	if(counter == breakLimit){
 		stop("\nunable to generate initial parameters that generate a positive-definite covariance matrix\n")
 	}
-	initPars <- list("s"=s,
+	initPars <- list("logs"=logs,
 				 	 "logm"=logm,
 				 	 "nbhd"=nbhd,
-				 	 "inDeme"=inDeme,
-				 	 "nugget"=nugget,
+				 	 "loginDeme"=loginDeme,
+				 	 "lognugget"=lognugget,
 				 	 "parHom" = parHom)
 	save(initPars,file="initPars.Robj")
 	return(initPars)
