@@ -129,25 +129,6 @@ wmModel_pi <- wmModel_out %>% filter(is.na(slurm_job_id)==FALSE)
 #save text output
 write.table(wmModel_pi, file=paste0(workingdir, "/", prefix, "-est.txt"))
 
-#plot
-pdf(file=paste0(workingdir, "/", prefix, "-wmModel_plots.pdf"))
-est.plot <- wmModel_pi %>% ggplot() + 
-  geom_point(aes(x=K, y=nbhd, fill=sigma, shape=model_flavor), size=2, shape = 21)
-print(est.plot)
-
-delta.plot <- wmModel_pi %>% ggplot() + 
-  geom_point(aes(x=K, y=delta_nbhd, fill=sigma, shape=model_flavor), size=2, shape = 21)
-print(delta.plot)
-
-col_K.plot <- wmModel_pi %>% ggplot() + 
-  geom_point(aes(x=K, y=col_pi, fill=sigma, shape=model_flavor), size=2, shape = 21)
-print(col_K.plot)
-
-col_K.plot <- wmModel_pi %>% ggplot() + 
-  geom_point(aes(x=K, y=inDeme, fill=sigma, shape=model_flavor), size=2, shape = 21)
-print(col_K.plot)
-dev.off()
-
 #end
 
 
