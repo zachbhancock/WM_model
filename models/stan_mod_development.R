@@ -4,20 +4,33 @@ source("wm_hom_cmpPar_mod_block_scaled_Gpr.R")
 
 IBG <- stan_model(model_code=stanBlock)
 
+source("wm_hom_cmpPar_mod_block_scaled.R")
+
+IBD <- stan_model(model_code=stanBlock)
+
+
 source('~/Dropbox/spatial_models/WM_model/wm_lib.R')
+
 coords <- data.matrix(read.table("~/Dropbox/bedassle-paper/sims/slimulations/ibd/ibd1_coords.txt"))
 pwp <- data.matrix(read.table("~/Dropbox/bedassle-paper/sims/slimulations/ibd/ibd1_pwp.txt"))
 geoDist <- fields::rdist(coords)
 hom <- 1-pwp
 diag(hom) <- 1
 k <- 1
+
+# testing normal model
+db <- list("N" = nrow(coords),
+		   "L" = 1e4,
+		   "hom" = hom,
+		   "k" = k,
+		   "geoDist" = geoDist)
+
+fit <- runWM(stanMod=IBD,dataBlock=db,nChains=1,nIter=5e2,prefix="test",MLjumpstart=TRUE,nMLruns=3)
+
+
+# testing G model
 ut <- upper.tri(geoDist,diag=TRUE)
 nGpar <- length(geoDist[ut])-length(which(geoDist[ut] < k))
-getIdxsG <- function(geoDist,k){
-	idxsG <- which(geoDist > k,arr.ind=TRUE)
-	idxsG <- idxsG[-which(idxsG[,1] < idxsG[,2]),]
-	return(idxsG)
-}
 
 idxsG <- getIdxsG(geoDist,k)
 
@@ -29,9 +42,29 @@ db <- list("N" = nrow(coords),
 		   "nGpar" = nGpar,
 		   "idxsG" = idxsG)
 
+fit <- runWM(stanMod=IBG,dataBlock=db,nChains=1,nIter=5e2,prefix="test",MLjumpstart=TRUE,nMLruns=3)
 
-#ml2init(db=db,mod=mod,nRuns=1e1)
 
+
+
+if(FALSE){
+	
+tmp <- ml2init(db=db,mod=IBG,nRuns=5,Gmodel=TRUE,prefix="testG_mod")
+
+library(doParallel)
+library(foreach)
+
+cl <- parallel::makeCluster(4)
+doParallel::registerDoParallel(cl)
+
+foreach(i =1:4, .packages="rstan") %dopar% {
+fit <- runWM(stanMod=IBG,dataBlock=db,nChains=1,nIter=2e4,prefix=sprintf("test%s",i))
+}
+
+
+#fit2 <- runWM(stanMod=mod,dataBlock=db,nChains=2,nIter=1e3,prefix="testMLjumpstart",MLjumpstart=TRUE,nMLruns=20)
+
+parallel::stopCluster(cl)
 
 generateInitPars <- function(dataBlock,breakLimit=1e4,nChains,prefix){
 #	recover()
@@ -79,22 +112,7 @@ generateInitPars <- function(dataBlock,breakLimit=1e4,nChains,prefix){
 	return(initPars)
 }
 
-library(doParallel)
-library(foreach)
 
-cl <- parallel::makeCluster(4)
-doParallel::registerDoParallel(cl)
-
-foreach(i =1:4, .packages="rstan") %dopar% {
-fit <- runWM(stanMod=IBG,dataBlock=db,nChains=1,nIter=2e4,prefix=sprintf("test%s",i))
-}
-
-
-#fit2 <- runWM(stanMod=mod,dataBlock=db,nChains=2,nIter=1e3,prefix="testMLjumpstart",MLjumpstart=TRUE,nMLruns=20)
-
-parallel::stopCluster(cl)
-
-if(FALSE){
 	tv <- unlist(lapply(1:1219,function(i){var(extract(out$fit,sprintf("Gvec[%s]",i),inc_warmup=FALSE,permute=FALSE)[,1,1])}))
 plot(db$geoDist[db$idxsG],tv)
 
@@ -188,6 +206,7 @@ getGammaPars <- function(d,maxD){
 }
 plot(testD,getGammaPars(testD,maxD=maxD),col="blue")
 }
+
 
 
 
