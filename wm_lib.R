@@ -24,8 +24,14 @@ runWM <- function(stanMod,dataBlock,nChains,nIter,prefix,MLjumpstart=FALSE,nMLru
 					save_warmup = FALSE,
 					init=initPars,
 					thin = ifelse(nIter/500 > 1, floor(nIter/500), 1))
+	if(nChains==1){
+		bestChain <- 1
+	} else {
+		bestChain <- which.max(lapply(rstan::get_logposterior(fit),mean))
+	}
 	out <- list("dataBlock" = dataBlock,
-				"fit" = fit)
+				"fit" = fit,
+				"bestChain" = bestChain)
     saveOut(fit=fit,outPrefix=prefix)
 	save(out,file=paste0(prefix,"_out.Robj"))
 	vizWMout(wmOutfile=paste0(prefix,"_out.Robj"),outPrefix=prefix)

@@ -25,7 +25,7 @@ db <- list("N" = nrow(coords),
 		   "k" = k,
 		   "geoDist" = geoDist)
 
-fit <- runWM(stanMod=IBD,dataBlock=db,nChains=1,nIter=5e2,prefix="test",MLjumpstart=TRUE,nMLruns=3)
+fit <- runWM(stanMod=IBD,dataBlock=db,nChains=4,nIter=5e2,prefix="test",MLjumpstart=TRUE,nMLruns=3)
 
 
 # testing G model
@@ -42,7 +42,7 @@ db <- list("N" = nrow(coords),
 		   "nGpar" = nGpar,
 		   "idxsG" = idxsG)
 
-fit <- runWM(stanMod=IBG,dataBlock=db,nChains=1,nIter=5e2,prefix="test",MLjumpstart=TRUE,nMLruns=3)
+fit <- runWM(stanMod=IBG,dataBlock=db,nChains=2,nIter=250,prefix="test",MLjumpstart=TRUE,nMLruns=3,Gmodel=TRUE)
 
 
 
