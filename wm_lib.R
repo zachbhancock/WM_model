@@ -13,9 +13,9 @@ runWM <- function(stanMod,dataBlock,nChains,nIter,prefix,MLjumpstart=FALSE,nMLru
 		if(is.null(nMLruns)){
 			stop("\nyou must specify the number of maximum liklihood jumpstart runs to perform\n")
 		}
-		initPars <- lapply(1:nChains,function(i){ml2init(db=dataBlock,mod=stanMod,nRuns=nMLruns)})
+		initPars <- lapply(1:nChains,function(i){ml2init(db=dataBlock,mod=stanMod,nRuns=nMLruns,prefix=prefix)})
 	} else {
-		initPars <- lapply(1:nChains,function(i){generateInitPars(dataBlock=dataBlock)})
+		initPars <- lapply(1:nChains,function(i){generateInitPars(dataBlock=dataBlock,prefix=prefix)})
 	}
 	fit <- sampling(object = stanMod,
 				 data = dataBlock,
@@ -53,20 +53,24 @@ runWM_cmpLnl <- function(stanMod,dataBlock,nChains,nIter,prefix){
 	vizWMout_cmpLnl(wmOutfile=paste0(prefix,"_out.Robj"),outPrefix=prefix)
 }
 
-ml2init <- function(db,mod,nRuns){
+ml2init <- function(db,mod,nRuns,prefix){
 	mlRuns <- lapply(1:nRuns,
 					function(i){
-						inits <- generateInitPars(dataBlock=db,nChains=1)
+						inits <- generateInitPars(dataBlock=db,nChains=1,prefix)
 						optimizing(object=mod,data=db,init=inits)
 					})
 	bestRun <- which.max(unlist(lapply(mlRuns,"[[","value")))
 	inits <- list("nbhd" = as.numeric(mlRuns[[bestRun]]$par[which(names(mlRuns[[bestRun]]$par)=="nbhd")]),
 				  "loginDeme" = as.numeric(mlRuns[[bestRun]]$par[which(names(mlRuns[[bestRun]]$par)=="loginDeme")]),
-				  "logs" = as.numeric(mlRuns[[bestRun]]$par[which(names(mlRuns[[bestRun]]$par)=="logs")]),
+				  "s" = as.numeric(mlRuns[[bestRun]]$par[which(names(mlRuns[[bestRun]]$par)=="s")]),
 				  "logm" = as.numeric(mlRuns[[bestRun]]$par[which(names(mlRuns[[bestRun]]$par)=="logm")]),
 				  "lognugget" = as.numeric(mlRuns[[bestRun]]$par[which(names(mlRuns[[bestRun]]$par)=="lognugget")]))
+	# if(mod=="IBG"){
+		# inits[["G"]] <- 
+	# }
 	return(inits)
 }
+
 
 makeParaHom <- function(s,m,k,nbhd,inDeme,nugget,geoDist){
 	pIBD <- besselK(nu=0,x=sqrt(m) * geoDist) / nbhd
@@ -76,15 +80,15 @@ makeParaHom <- function(s,m,k,nbhd,inDeme,nugget,geoDist){
 	return(pHom)
 }
 
-checkPrBounds <- function(nbhd,logm,loginDeme,logs,lognugget){
+checkPrBounds <- function(nbhd,logm,loginDeme,lognugget){
 	inPrBounds <- TRUE
-	if(nbhd < 0 | loginDeme < -5 | logs < -5 | logm < -25 | lognugget < -25){
+	if(nbhd < 0 | loginDeme < -5 | logm < -25 | lognugget < -25){
 		inPrBounds <- FALSE
 	}
 	return(inPrBounds)
 }
 
-generateInitPars <- function(dataBlock,breakLimit=1e4,nChains){
+generateInitPars <- function(dataBlock,breakLimit=1e4,nChains,prefix){
 	scl_min <- min(dataBlock$hom)
 	scl_max <- max(dataBlock$hom-scl_min)
 	posdef <- FALSE
@@ -101,25 +105,24 @@ generateInitPars <- function(dataBlock,breakLimit=1e4,nChains){
 		nbhd <- abs(rnorm(1,1,10))
 		inDeme <- rbeta(1,0.9,0.5)
 		nugget <- abs(rnorm(1,0.05,0.01))
-		logs <- log(s)
 		loginDeme <- log(inDeme)
 		lognugget <- log(nugget)
 		parHom <- makeParaHom(s,m,k,nbhd,inDeme,nugget,dataBlock$geoDist)
 		parHom <- (parHom-scl_min)/scl_max
 		posdef <- all(eigen(parHom)$values > 0)
-		inPrBounds <- checkPrBounds(nbhd,logm,loginDeme,logs,lognugget)
+		inPrBounds <- checkPrBounds(nbhd,logm,loginDeme,lognugget)
 		counter <- counter + 1
 	}
 	if(counter == breakLimit){
 		stop("\nunable to generate initial parameters that generate a positive-definite covariance matrix\n")
 	}
-	initPars <- list("logs"=logs,
+	initPars <- list("s"=s,
 				 	 "logm"=logm,
 				 	 "nbhd"=nbhd,
 				 	 "loginDeme"=loginDeme,
 				 	 "lognugget"=lognugget,
 				 	 "parHom" = parHom)
-	save(initPars,file="initPars.Robj")
+	save(initPars,file=paste0(prefix,"_initPars.Robj"))
 	return(initPars)
 }
 
@@ -143,16 +146,16 @@ saveOut <- function(fit,outPrefix){
 	if("nugget" %in% names(fit)){
 		nugget <- rstan::extract(fit,"nugget",inc_warmup=FALSE)
 	}
-	logm <- rstan::extract(fit,"logm",inc_warmup=FALSE)
+	m <- rstan::extract(fit,"m",inc_warmup=FALSE)
 	nbhd <- rstan::extract(fit,"nbhd",inc_warmup=FALSE)
 	inDeme <- rstan::extract(fit,"inDeme",inc_warmup=FALSE)
 	ptEsts <- list("s" = mean(s[[1]]),
-				   "logm" = mean(logm[[1]]),
+				   "m" = mean(m[[1]]),
 				   "nbhd" = mean(nbhd[[1]]),
 				   "inDeme" = mean(inDeme[[1]]))
 	postDist <- list("s" = s,
 		 			 "nugget" = nugget,
-					 "logm" = logm,
+					 "m" = m,
 					 "nbhd" = nbhd,
 					 "inDeme" = inDeme)
 	if("nugget" %in% names(fit)){
@@ -175,7 +178,7 @@ vizWMout <- function(wmOutfile,outPrefix){
 	post <- rstan::get_logposterior(out$fit,inc_warmup=FALSE)
 	s <- rstan::extract(out$fit,"s",inc_warmup=FALSE,permute=FALSE)
 	nugget <- rstan::extract(out$fit,"nugget",inc_warmup=FALSE,permute=FALSE)
-	logm <- rstan::extract(out$fit,"logm",inc_warmup=FALSE,permute=FALSE)
+	m <- rstan::extract(out$fit,"m",inc_warmup=FALSE,permute=FALSE)
 	nbhd <- rstan::extract(out$fit,"nbhd",inc_warmup=FALSE,permute=FALSE)
 	inDeme <- rstan::extract(out$fit,"inDeme",inc_warmup=FALSE,permute=FALSE)
 	pHom <- invisible(lapply(1:length(post),
@@ -184,7 +187,7 @@ vizWMout <- function(wmOutfile,outPrefix){
 	nChains <- length(post)
 	chainCols <- c("blue","goldenrod1","red","forestgreen","purple","black")[1:nChains]
 	pdf(file=paste0(outPrefix,"plots.pdf"),width=12,heigh=8)
-		makeCmpParPlots(post,logm,nbhd,s,nugget,inDeme,chainCols)
+		makeCmpParPlots(post,m,nbhd,s,nugget,inDeme,chainCols)
 		for(i in 1:length(post)){
 			par(mfrow=c(1,1))
 				plotFit(out,pHom[[i]],chainCols[i])
@@ -196,14 +199,14 @@ vizWMout_cmpLnl <- function(wmOutfile,outPrefix){
 	load(wmOutfile)
 	post <- rstan::get_logposterior(out$fit,inc_warmup=FALSE)
 	s <- rstan::extract(out$fit,"s",inc_warmup=FALSE,permute=FALSE)
-	logm <- rstan::extract(out$fit,"logm",inc_warmup=FALSE,permute=FALSE)
+	m <- rstan::extract(out$fit,"m",inc_warmup=FALSE,permute=FALSE)
 	nbhd <- rstan::extract(out$fit,"nbhd",inc_warmup=FALSE,permute=FALSE)
 	inDeme <- rstan::extract(out$fit,"inDeme",inc_warmup=FALSE,permute=FALSE)
 	pHom <- rstan::extract(out$fit,"pHom",inc_warmup=FALSE,permute=FALSE)
 	nChains <- length(post)
 	chainCols <- c("blue","goldenrod1","red","forestgreen","purple","black")[1:nChains]
 	pdf(file=paste0(outPrefix,"plots.pdf"),width=12,heigh=8)
-		makeCmpParPlots(post,logm,nbhd,s,nugget=NULL,inDeme,chainCols)
+		makeCmpParPlots(post,m,nbhd,s,nugget=NULL,inDeme,chainCols)
 		for(i in 1:length(post)){
 			par(mfrow=c(1,1))
 				plotFit_cmpLnl(out,pHom[,i,],chainCols[i])
@@ -211,10 +214,10 @@ vizWMout_cmpLnl <- function(wmOutfile,outPrefix){
 	dev.off()
 }
 
-makeCmpParPlots <- function(post,logm,nbhd,s,nugget=NULL,inDeme,chainCols){
+makeCmpParPlots <- function(post,m,nbhd,s,nugget=NULL,inDeme,chainCols){
 	par(mfrow=c(2,3))
 		matplot(Reduce("cbind",post),ylab="posterior probability",type='l',lwd=1.5,lty=1,col=chainCols)
-		matplot(logm[,,1],type='l',lwd=1.5,lty=1,col=chainCols,xlab="",ylab="log(m)")
+		matplot(m[,,1],type='l',lwd=1.5,lty=1,col=chainCols,xlab="",ylab="m")
 		matplot(nbhd[,,1],type='l',lwd=1.5,lty=1,col=chainCols,xlab="",ylab="nbhd")
 		matplot(s[,,1],type='l',lwd=1.5,lty=1,col=chainCols,xlab="",ylab="s")
 		matplot(inDeme[,,1],type='l',lwd=1.5,lty=1,col=chainCols,xlab="sampled mcmc iterations",ylab="inDeme")
@@ -223,14 +226,14 @@ makeCmpParPlots <- function(post,logm,nbhd,s,nugget=NULL,inDeme,chainCols){
 		}
 	for(i in 1:length(chainCols)){
 		par(mfrow=c(2,5))
-			plot(logm[,i,1],nbhd[,i,1],pch=20,col=adjustcolor(chainCols[i],0.5),xlab="log(m)",ylab="nbhd")
-			plot(logm[,i,1],s[,i,1],pch=20,col=adjustcolor(chainCols[i],0.5),xlab="log(m)",ylab="s")
-			plot(logm[,i,1],inDeme[,i,1],pch=20,col=adjustcolor(chainCols[i],0.5),xlab="log(m)",ylab="inDeme")
+			plot(m[,i,1],nbhd[,i,1],pch=20,col=adjustcolor(chainCols[i],0.5),xlab="m",ylab="nbhd")
+			plot(m[,i,1],s[,i,1],pch=20,col=adjustcolor(chainCols[i],0.5),xlab="m",ylab="s")
+			plot(m[,i,1],inDeme[,i,1],pch=20,col=adjustcolor(chainCols[i],0.5),xlab="m",ylab="inDeme")
 			plot(nbhd[,i,1],s[,i,1],pch=20,col=adjustcolor(chainCols[i],0.5),xlab="nbhd",ylab="s")
 			plot(nbhd[,i,1],inDeme[,i,1],pch=20,col=adjustcolor(chainCols[i],0.5),xlab="nbhd",ylab="inDeme")
 			plot(s[,i,1],inDeme[,i,1],pch=20,col=adjustcolor(chainCols[i],0.5),xlab="s",ylab="inDeme")
 		if(!is.null(nugget)){
-			plot(logm[,i,1],nugget[,i,1],pch=20,col=adjustcolor(chainCols[i],0.5),xlab="log(m)",ylab="nugget")
+			plot(m[,i,1],nugget[,i,1],pch=20,col=adjustcolor(chainCols[i],0.5),xlab="m",ylab="nugget")
 			plot(nbhd[,i,1],nugget[,i,1],pch=20,col=adjustcolor(chainCols[i],0.5),xlab="nbhd",ylab="nugget")
 			plot(s[,i,1],nugget[,i,1],pch=20,col=adjustcolor(chainCols[i],0.5),xlab="s",ylab="nugget")
 			plot(inDeme[,i,1],nugget[,i,1],pch=20,col=adjustcolor(chainCols[i],0.5),xlab="inDeme",ylab="nugget")
@@ -247,6 +250,7 @@ plotFit <- function(out,pHom,chainCol){
 				points(out$dataBlock$geoDist,pHom[i,,],pch=20,col=adjustcolor(chainCol,0.05))
 			}))
 	points(out$dataBlock$geoDist,out$dataBlock$hom)
+	abline(v=out$dataBlock$k,lty=2,lwd=1,col="darkorange1")
 }
 
 plotFit_cmpLnl <- function(out,pHom,chainCol){
