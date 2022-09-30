@@ -110,10 +110,8 @@ for (loop.iter in 1:length(list_of_prefixes$Robjfile)) {
     merge(., inDeme_pi, by = c("iteration","chain")) %>% 
     merge(., m_pi, by = c("iteration","chain")) %>% 
     merge(., post_pi, by = c("iteration","chain"))
-  density <- read.table(file=paste0(workingdir, "/", prefix, "_density.txt"), header=FALSE)
-  wmModel_pi$K <- density
   wmModel_pi <- wmModel_pi %>% 
-    mutate(theo_nbhd = 4*pi*K*(sigma^2)) %>% 
+    mutate(theo_nbhd = 4*pi*(K*0.65)*(sigma^2)) %>% 
     mutate(delta_nbhd = theo_nbhd - nbhd)
   
   wmModel_pi <- wmModel_pi %>% dplyr::select(slurm_job_id, slimIter, sigma, K,
