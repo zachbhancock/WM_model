@@ -2,7 +2,7 @@
 
 #define variables:
 
-executable=run-extrapolating_gendiv_WM.sbatch #script to run
+executable=empirical-run_wmModel_hpcc.sbatch #script to run
 
 logfilesdir=logfiles_gendivextrap_WM #name of directory to create and then write log files to
 
