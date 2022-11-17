@@ -22,8 +22,8 @@ then
 	cp $INDIR/"bpstats."$MINPROPINDIVSSCOREDIN* $WORKDIR
 	cp $SLURM_SUBMIT_DIR/exe_WM-emperical.R $WORKDIR
 	cp $SLURM_SUBMIT_DIR/wm_lib.R $WORKDIR
-	cp $SLURM_SUBMIT_DIR/wm_hom_cmpPar_mod_block_scaled.R $WORKDIR
-	cp $SLURM_SUBMIT_DIR/wm_hom_cmpPar_cmpLnL_mod_block.R $WORKDIR
+	cp $SLURM_SUBMIT_DIR/models/wm_hom_cmpPar_mod_block_scaled.R $WORKDIR
+	cp $SLURM_SUBMIT_DIR/models/wm_hom_cmpPar_cmpLnL_mod_block.R $WORKDIR
 	
 	#move to execute node
 	cd $WORKDIR
