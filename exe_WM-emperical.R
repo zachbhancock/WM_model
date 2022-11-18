@@ -1,4 +1,3 @@
-
 ################################################################
 ################################################################
 #	running inference of wright-malecot model on empirical data
@@ -34,9 +33,10 @@ minPropIndivsScoredin = as.numeric(args[5]) #percent of indivs that locus must b
 model_flavor = args[6] #flavor of WM model to run
 
 #for local testing
+# indir="../scripts/"
+# outdir="../troubleshooting"
 # run_name="bioprj_PRJNA294760_Amphiprion-bicinctus"
 # minPropIndivsScoredin = 0.5
-# model_flavor = "wishart"
 
 #source our functions/load models
 source(paste0(indir,"/wm_lib.R"))
@@ -60,7 +60,7 @@ options(warn=1)
 
 #get pwp and distance matrices --------------
 
-popgenfiles_list <- list.files(path = paste0(indir), pattern = paste0("popgenstats.", minPropIndivsScoredin), full.names = TRUE)
+popgenfiles_list <- list.files(path = paste0(indir), pattern = paste0("popgenstats.",minPropIndivsScoredin), full.names = TRUE)
 print("popgenfiles_list contains:")
 print(popgenfiles_list)
 
@@ -82,11 +82,17 @@ for (loop.iter in 1:length(popgenfiles_list)) {
   load(paste0(indir, "/bpstats.", minPropIndivsScoredin, ".", run_name, "_stacks_", stacksparams, "_BPstats.Robj"))
   Npolyloci = BPstats$nLoci
   cat("here1\n", file = stderr())
-  
+
   #get pw geographic distance matrix
   load(paste0(indir, "/max_and_pw_dists", run_name, ".Robj", sep = ""))
   #geoDist <- max_and_pw_dists$pw.gcd.genetic
   geoDist <- max_and_pw_dists$pw.seadist.genetic
+  if ( is.null(geoDist)==T ) {
+    geoDist <- max_and_pw_dists$pw.gcd.genetic
+    print("using great circle distance")
+  } else {
+    print("using sea distance")
+  }
   # rename geoDist from SRR IDs to sampleX IDs
   geoDistnames <- colnames(geoDist) %>% as.data.frame() %>% dplyr::rename("run_acc_sra" = ".") %>% 
     dplyr::mutate(order = 1:dplyr::n()) %>% 
@@ -96,13 +102,13 @@ for (loop.iter in 1:length(popgenfiles_list)) {
   colnames(geoDist) <- geoDistnames
   rownames(geoDist) <- geoDistnames
   cat("here2\n", file = stderr()) 
-  
+
   #get pw pi aka genetic matrix
   load(popgenfile)
   #pwp <- popgenstats$pwp$pwp
   pwp <- popgenstats$pwp
   cat("here3\n", file = stderr())
-  
+
   #get list of just samples in both geog and pwp matrices
   sampstouse <- merge(rownames(geoDist) %>% as.data.frame() %>% mutate(x = "geo") %>% dplyr::rename("samp" = "."),
                       rownames(pwp) %>% as.data.frame() %>% mutate(y = "geno") %>% dplyr::rename("samp" = "."),
@@ -170,7 +176,8 @@ for (loop.iter in 1:length(popgenfiles_list)) {
               dataBlock = dataBlock,
               nChains = 5,
               nIter = 5e3,
-              prefix = paste0("WMfit",model_flavor,"-",run_name,"_stacks_",stacksparams)))
+              prefix = paste0("WMfit",model_flavor,"-",run_name,"_stacks_",stacksparams),
+              MLjumpstart = FALSE))
     
   }
   
@@ -191,10 +198,12 @@ for (loop.iter in 1:length(popgenfiles_list)) {
                      prefix = paste0("WMfit",model_flavor,"-",run_name,"_stacks_",stacksparams)))
     
   }
-  
+
   #clean up at end of loop iteration in case something goes awry
   rm(popgenfile,stacksparams,sampkey,Npolyloci,
      geoDist,geoDistnames,geoDist.ordered,
      pwp.ordered,hom,pwp,sampstouse)
-  
+
 }
+
+
