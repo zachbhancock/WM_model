@@ -214,8 +214,8 @@ freqs2pairwisePi <- function(freqs,coGeno=NULL,quiet=FALSE){
       }
     }
   }
-  row.names(pwp) <- row.names(coGeno)
-  colnames(pwp) <- row.names(coGeno)
+  row.names(pwp) <- row.names(gt)
+  colnames(pwp) <- row.names(gt)
   return(pwp)
 }
 
