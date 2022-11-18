@@ -234,3 +234,5 @@ Nloci=ncol(gt)
 BPstats <- list("nLoci" = Nloci)
 
 save(BPstats,file=paste0("empirical_data/bioprj_PRJNA473221_Bombus-vosnesenskii/bpstats.0.5.bioprj_PRJNA473221_Bombus-vosnesenskii_stacks_fromdryad_BPstats.Robj"))
+
+
