@@ -1,6 +1,6 @@
 ################################################################
 ################################################################
-#	running inference of wright-malecot model on SLiMulated data
+#	running inference of wright-malecot model on empirical data
 ################################################################
 ################################################################
 
@@ -87,6 +87,12 @@ for (loop.iter in 1:length(popgenfiles_list)) {
   load(paste0(indir, "/max_and_pw_dists", run_name, ".Robj", sep = ""))
   #geoDist <- max_and_pw_dists$pw.gcd.genetic
   geoDist <- max_and_pw_dists$pw.seadist.genetic
+  if ( is.null(geoDist)==T ) {
+    geoDist <- max_and_pw_dists$pw.gcd.genetic
+    print("using great circle distance")
+  } else {
+    print("using sea distance")
+  }
   # rename geoDist from SRR IDs to sampleX IDs
   geoDistnames <- colnames(geoDist) %>% as.data.frame() %>% dplyr::rename("run_acc_sra" = ".") %>% 
     dplyr::mutate(order = 1:dplyr::n()) %>% 
