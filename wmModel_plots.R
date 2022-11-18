@@ -67,6 +67,10 @@ for (loop.iter in 1:length(list_of_prefixes$Robjfile)) {
   gen.dist <- as.matrix(gen.dist)
   gen.dist <- gen.dist[lower.tri(gen.dist)]
   gen.dist <- as.data.frame(gen.dist)
+  fst <- data.matrix(read.table(file=paste0(workingdir, "/", prefix, "-Fst.csv")))
+  fst <- as.matrix(fst)
+  fst <- fst[lower.tri(fst)]
+  fst <- as.data.frame(fst)
   geo.dist <- read.table(file=paste0(workingdir, "/", prefix, "-pi_locs.txt"), header = TRUE)
   coords.dist <- geo.dist[,c("x","y")]
   geo.dist <- fields::rdist(coords.dist)
@@ -74,8 +78,17 @@ for (loop.iter in 1:length(list_of_prefixes$Robjfile)) {
   geo.dist <- geo.dist[lower.tri(geo.dist)]
   geo.dist <- as.data.frame(geo.dist)
   dist.all <- cbind(gen.dist, geo.dist)
+  dist.fst <- cbind(fst, geo.dist)
   names(dist.all)[1] <- "gen.dist"
   names(dist.all)[2] <- "geo.dist"
+  names(dist.fst)[1] <- "fst"
+  names(dist.fst)[2] <- "geo.dist"
+  
+  #Rousset method for estimating Nb
+  dist.fst$y <- dist.fst$fst / (1 - dist.fst$fst)
+  reg <- lm(dist.fst$y ~ dist.fst$geo.dist)
+  beta <- summary(reg)$coefficients["x", 1]
+  Rousset_Nb <- 1 / beta
   
   #read WM_model output
   load(paste0(workingdir, "/", Robjfile), verbose=TRUE)
@@ -120,8 +133,10 @@ for (loop.iter in 1:length(list_of_prefixes$Robjfile)) {
                                              theo_nbhd, delta_nbhd)
   
   wmModel_out <- rbind(wmModel_out, wmModel_pi)
+  wmModel_out$Rousset_Nb <- Rousset_Nb
   
 }
+
 wmModel_pi <- wmModel_out %>% filter(is.na(slurm_job_id)==FALSE)
 
 #save text output
