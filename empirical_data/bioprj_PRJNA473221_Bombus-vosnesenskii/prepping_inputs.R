@@ -228,9 +228,9 @@ popgenstats <- list("thetaW" = NULL,
                     "pcs" = NULL,
                     "het" = NULL)
 
-save(popgenstats,file=paste0("empirical_data/bioprj_PRJNA473221_Bombus-vosnesenskii/popgenstats.bioprj_PRJNA473221_Bombus-vosnesenskii.fromdryad_popgenstats.Robj"))
+save(popgenstats,file=paste0("empirical_data/bioprj_PRJNA473221_Bombus-vosnesenskii/popgenstats.0.5.bioprj_PRJNA473221_Bombus-vosnesenskii_stacks_fromdryad_popgenstats.Robj"))
 
+Nloci=ncol(gt)
+BPstats <- list("nLoci" = Nloci)
 
-
-
-
+save(BPstats,file=paste0("empirical_data/bioprj_PRJNA473221_Bombus-vosnesenskii/bpstats.0.5.bioprj_PRJNA473221_Bombus-vosnesenskii_stacks_fromdryad_BPstats.Robj"))
