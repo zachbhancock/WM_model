@@ -8,7 +8,7 @@ logfilesdir=logfiles_wmModel #name of directory to create and then write log fil
 datesuffix=$(date +%m-%d-%Y.%H)
 outdir=$storagenode/allpimat_wmModel_outputs-$datesuffix #name of directory to create and write all outputs to
 
-n_iterations=1 #number of iterations to run of each identical simulation
+n_iterations=10 #number of iterations to run of each identical simulation
 
 #define some values to pass into slim
 vector_of_K_values=( 2.0, 5.0, 10.0, 25.0 )
