@@ -1,0 +1,2 @@
+bioprj_PRJNA294760_Amphiprion-bicinctus
+bioprj_PRJNA473221_Bombus-vosnesenskii
