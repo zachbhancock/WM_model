@@ -57,7 +57,7 @@ if [ $COPY_FILES_TO_EXECUTE_NODE = yes ]
 then
 	
 	cp -r $OUTDIR/WMfit* $OUTDIR_FINAL
-	#cp -r $OUTDIR/plots* $FIGDIR
+	cp -r $OUTDIR/*pdf $FIGDIR
 	
 	wait
 	rm -rf $WORKDIR
