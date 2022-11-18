@@ -123,7 +123,8 @@ class(gt) <- "numeric"
 
 #calc pwp matrix -----------------
 
-#this code from Gideon from divdiv
+#this code from Gideon from divdiv to convert VCF into pwp matrix
+#but right now it's just doing relative aka not n snps * 1000
 
 #' Calculate pairwise pi between two diploid individuals
 #'
