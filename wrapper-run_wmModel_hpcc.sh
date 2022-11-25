@@ -7,14 +7,14 @@ logfilesdir=logfiles_wmModel #name of directory to create and then write log fil
 
 datesuffix=$(date +%m-%d-%Y.%H)
 outdir=$storagenode/ALL_wmModel_outputs-$datesuffix #name of directory to create and write all outputs to
-indir=$storagenode/allpimat_wmModel_outputs-10-05-2022.15
+indir=$storagenode/allpimat_wmModel_outputs-11-18-2022.13
 finaldir=$storagenode/summary_files #where the models go to die
 
 model_flavor=wishart #value wishart or cmplnl
 
 #define some values to pass into slim
-vector_of_K_values=( 25.0 )
-vector_of_sigma_values=( 2.0 )
+vector_of_K_values=( 2.0 5.0 10.0 25.0 )
+vector_of_sigma_values=( 0.5 0.75 1.0 1.25 1.5 2.0 )
 
 cpus=2 #number of CPUs to request/use per dataset
 ram_per_cpu=16G #amount of RAM to request/use per CPU
