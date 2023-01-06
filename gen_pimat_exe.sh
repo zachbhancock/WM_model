@@ -16,7 +16,7 @@ if [ ! -d $WORKINGDIR ]; then mkdir $WORKINGDIR; fi
 if [ ! -d $OUTDIR ]; then mkdir $OUTDIR; fi
 
 #copy scripts to execute node
-cp $SLURM_SUBMIT_DIR/torus_model.slim $WORKINGDIR
+cp $SLURM_SUBMIT_DIR/test.slim $WORKINGDIR
 cp $SLURM_SUBMIT_DIR/processing_slim.py $WORKINGDIR
 
 #move to execute node
@@ -38,7 +38,7 @@ module load SLiM/3.7.1
 d=`date +%m,%d,%Y,%H,%M`
 echo "TIME,START,SLIM,$d"
 
-slim -d K=$K -d SIGMA=$SIGMA -d "WORKINGDIR='$WORKINGDIR'" -d "TREEFILE='$TREEFILE'" -d "n='$SLURM_ARRAY_TASK_ID'" torus_model.slim
+slim -d K=$K -d SIGMA=$SIGMA -d "WORKINGDIR='$WORKINGDIR'" -d "TREEFILE='$TREEFILE'" -d "n='$SLURM_ARRAY_TASK_ID'" test.slim
 
 echo "DONE RUNNING SLIM"
 d=`date +%m,%d,%Y,%H,%M`
