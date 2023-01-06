@@ -21,8 +21,8 @@ print("arguments passed:")
 cat(args, sep = "\n")
 
 #define some variables (pulled in from bash script)
-workingdir = args[1]
-#model_flavor = args[2]
+workingdir = /mnt/gs21/scratch/hancockz/ALL_wmModel_outputs-12-02-2022.10
+model_flavor = Wishart
 #treefile = args[2] %>% gsub("/", "", .)
 #note to Zach for testing, run: treefile="linear_42014183_slimIter_0_sigma_0.5"
 #working dir is just the directory where "all our stuff" for one job (aka one value of sigma and one main slim iteration number) lives
@@ -67,7 +67,7 @@ for (loop.iter in 1:length(list_of_prefixes$Robjfile)) {
   gen.dist <- as.matrix(gen.dist)
   gen.dist <- gen.dist[lower.tri(gen.dist)]
   gen.dist <- as.data.frame(gen.dist)
-  fst <- data.matrix(read.table(file=paste0(workingdir, "/", prefix, "-Fst.csv")))
+  fst <- data.matrix(read.table(file=paste0(workingdir, "/", prefix, "-Fst.csv"), header=TRUE))
   fst <- as.matrix(fst)
   fst <- fst[lower.tri(fst)]
   fst <- as.data.frame(fst)

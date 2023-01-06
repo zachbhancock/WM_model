@@ -65,6 +65,12 @@ b = np.reshape(ind_div, (100,100))
 panda_df = pd.DataFrame(data = b, columns = x)
 panda_df.to_csv(prefix+"-pi.csv", sep=' ', index=True)
 
+ind_Fst = ts.Fst(ind_nodes, indexes=pairs)
+
+c = np.reshape(ind_Fst, (100,100))
+panda2_df = pd.DataFrame(data = c, columns = x)
+panda2_df.to_csv(prefix+"-Fst.csv", sep=" ", index=True)
+
 indivlist = []
 indivnames = []
 with open(prefix+"-pi_locs.txt", "w") as indfile:
