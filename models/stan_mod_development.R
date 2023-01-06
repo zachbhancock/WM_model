@@ -1,13 +1,15 @@
 library(rstan)
+options(mc.cores = parallel::detectCores())
 
 source("wm_hom_cmpPar_mod_block_scaled_Gpr.R")
 
 IBG <- stan_model(model_code=stanBlock)
 
+if(FALSE){
 source("wm_hom_cmpPar_mod_block_scaled.R")
 
 IBD <- stan_model(model_code=stanBlock)
-
+}
 
 source('~/Dropbox/spatial_models/WM_model/wm_lib.R')
 
@@ -18,6 +20,7 @@ hom <- 1-pwp
 diag(hom) <- 1
 k <- 1
 
+if(FALSE){
 # testing normal model
 db <- list("N" = nrow(coords),
 		   "L" = 1e4,
@@ -26,7 +29,7 @@ db <- list("N" = nrow(coords),
 		   "geoDist" = geoDist)
 
 fit <- runWM(stanMod=IBD,dataBlock=db,nChains=4,nIter=5e2,prefix="test",MLjumpstart=TRUE,nMLruns=3)
-
+}
 
 # testing G model
 ut <- upper.tri(geoDist,diag=TRUE)
@@ -42,7 +45,7 @@ db <- list("N" = nrow(coords),
 		   "nGpar" = nGpar,
 		   "idxsG" = idxsG)
 
-fit <- runWM(stanMod=IBG,dataBlock=db,nChains=2,nIter=250,prefix="test",MLjumpstart=TRUE,nMLruns=3,Gmodel=TRUE)
+fit <- runWM(stanMod=IBG,dataBlock=db,nChains=4,nIter=2e4,prefix="testG",MLjumpstart=TRUE,nMLruns=10,Gmodel=TRUE)
 
 
 
@@ -143,18 +146,69 @@ extractG <- function(fit,chainNo,N){
 	return(G)
 }
 
-parG <- extractG(out$fit,1,db$N)
-ut <- upper.tri(db$geoDist)
+parG <- extractG(out$fit,1,out$dataBlock$N)
+ut <- upper.tri(out$dataBlock$geoDist)
 
-plot(db$geoDist,db$geoDist,type='n')
+Gmeans <- matrix(NA,nrow=out$dataBlock$N,ncol=out$dataBlock$N)
+G95CImn <- matrix(NA,nrow=out$dataBlock$N,ncol=out$dataBlock$N)
+G95CImx <- matrix(NA,nrow=out$dataBlock$N,ncol=out$dataBlock$N)
+for(i in 1:out$dataBlock$N){
+	for(j in i:out$dataBlock$N){
+		Gmeans[i,j] <- mean(parG[,i,j])
+		Gmeans[j,i] <- Gmeans[i,j]
+		qnt <- quantile(parG[,i,j],c(0.025,0.975))
+		G95CImn[i,j] <- qnt[1]
+		G95CImn[j,i] <- G95CImn[i,j]
+		G95CImx[i,j] <- qnt[2]
+		G95CImx[j,i] <- G95CImx[i,j]
+	}
+}
+
+homCols <- matrix(
+				colFunc(data.matrix(out$dataBlock$hom),
+						c("blue","red"),
+						out$dataBlock$N*5,
+						range(out$dataBlock$hom[ut])),
+				out$dataBlock$N,out$dataBlock$N)
+
+pdf(file="~/desktop/test.pdf")
+plot(out$dataBlock$geoDist,out$dataBlock$geoDist,type='n')
 	invisible(
 		lapply(sample(1:250,30),
 			function(i){
-				points(db$geoDist[ut],parG[i,,][ut],pch=19,col=adjustcolor(1,0.1))
+				points(out$dataBlock$geoDist[ut],parG[i,,][ut],pch=19,col=adjustcolor(1,0.01))
 			}))
+abline(0,1,col="red")
+dev.off()
 
 
+pdf(file="~/desktop/test2.pdf")
+plot(out$dataBlock$geoDist,out$dataBlock$geoDist,type='n')
+	abline(0,1,col="red",lty=2)
+	for(i in 1:out$dataBlock$N){
+		for(j in i:out$dataBlock$N){
+			segments(x0=out$dataBlock$geoDist[i,j],
+					 x1=out$dataBlock$geoDist[i,j],
+					 y0=G95CImn[i,j],
+					 y1=G95CImx[i,j],
+					 lwd=0.5,col=adjustcolor(homCols[i,j],0.5))
+			points(out$dataBlock$geoDist[i,j],Gmeans[i,j],
+					pch=18,cex=1,
+					col=adjustcolor(homCols[i,j],0.3))
+		}
+	}
+	legend(x="topleft",
+			pch=c(18,NA,18,18),
+			lwd=c(NA,1,NA,NA),
+			legend=c("mean","95% CI",
+						paste0("hom = ",round(min(data.matrix(out$dataBlock$hom)),5)),
+						paste0("hom = ",round(max(data.matrix(out$dataBlock$hom[ut])),5))),
+			col=c("black","black",
+					"blue","red"))
+dev.off()
 
+lpd <- get_logposterior(out$fit)
+plot(unlist(lpd))
 
 gp <- extractGamPars(out$fit,db$N)
 
