@@ -7,7 +7,7 @@ logfilesdir=logfiles_edge #name of directory to create and then write log files 
 
 datesuffix=$(date +%m-%d-%Y.%H)
 outdir=$storagenode/ALL_wmModel_outputs-$datesuffix #name of directory to create and write all outputs to
-indir=$storagenode/allpimat_wmModel_outputs-11-18-2022.13
+indir=$storagenode/allpimat_wmModel_outputs-12-02-2022.10
 finaldir=$storagenode/summary_files #where the models go to die
 
 #define some values to pass into slim
