@@ -14,7 +14,7 @@ if [ ! -d $WORKINGDIR ]; then mkdir $WORKINGDIR; fi
 if [ ! -d $OUTDIR ]; then mkdir $OUTDIR; fi
 
 #copy scripts to execute node
-cp $SLURM_SUBMIT_DIR/est_col_edges.R $WORKINGDIR
+cp $SLURM_SUBMIT_DIR/est_col_edges.r $WORKINGDIR
 cp "$INDIR"/wmModel_*_sigma_"$SIGMA"_K_"$K"-pi.csv $WORKINGDIR
 cp "$INDIR"/wmModel_*_sigma_"$SIGMA"_K_"$K"-pi_locs.txt $WORKINGDIR
 cp "$INDIR"/wmModel*_sigma_"SIGMA"_K_"$K"_out.Robj $WORKINGDIR
@@ -35,7 +35,7 @@ d=`date +%m,%d,%Y,%H,%M`
 echo "TIME,START,EXE_WM,$d"
 
 #Rscript exe_WM.R $WORKINGDIR $TREEFILE $MODEL_FLAVOR
-Rscript est_col_edges.R $WORKINGDIR $MODEL_FLAVOR
+Rscript est_col_edges.r $WORKINGDIR $MODEL_FLAVOR
 echo "DONE RUNNING exe_WM.R SCRIPT"
 d=`date +%m,%d,%Y,%H,%M`
 echo "TIME,END,EXE_WM,$d"
