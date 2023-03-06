@@ -35,7 +35,7 @@ d=`date +%m,%d,%Y,%H,%M`
 echo "TIME,START,EXE_WM,$d"
 
 #Rscript exe_WM.R $WORKINGDIR $TREEFILE $MODEL_FLAVOR
-Rscript est.col.edges.R $WORKINGDIR $MODEL_FLAVOR
+Rscript est_col_edges.R $WORKINGDIR $MODEL_FLAVOR
 echo "DONE RUNNING exe_WM.R SCRIPT"
 d=`date +%m,%d,%Y,%H,%M`
 echo "TIME,END,EXE_WM,$d"
