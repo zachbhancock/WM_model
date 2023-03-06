@@ -17,7 +17,7 @@ if [ ! -d $OUTDIR ]; then mkdir $OUTDIR; fi
 cp $SLURM_SUBMIT_DIR/est_col_edges.r $WORKINGDIR
 cp "$INDIR"/wmModel_*_sigma_"$SIGMA"_K_"$K"-pi.csv $WORKINGDIR
 cp "$INDIR"/wmModel_*_sigma_"$SIGMA"_K_"$K"-pi_locs.txt $WORKINGDIR
-cp "$INDIR"/wmModel_*_sigma_"SIGMA"_K_"$K"-est_wishart_out.Robj $WORKINGDIR
+cp "$INDIR"/wmModel_*_sigma_"$SIGMA"_K_"$K"-est_wishart_out.Robj $WORKINGDIR
 
 
 #move to execute node
