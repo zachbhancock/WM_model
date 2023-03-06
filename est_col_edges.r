@@ -80,7 +80,7 @@ for (prefix in list_of_prefixes$prefix){
   edge <- filter(edge.dist, geo.dist >= 20)
   names(edge)[1] <- "gen.dist"
 
-  load(paste(prefix, "_out.Robj", sep=""), verbose=TRUE)
+  load(paste(prefix, "-est_wishart_out.Robj", sep=""), verbose=TRUE)
   col_pi <- rstan::extract(out$fit, "s", inc_warmup=TRUE, permute=FALSE)
   post_pi <- rstan::get_logposterior(out$fit,inc_warmup=FALSE)
   post_pi <- data.frame(matrix(unlist(post_pi), nrow=length(post_pi), byrow=FALSE))
