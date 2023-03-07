@@ -69,7 +69,7 @@ for (prefix in list_of_prefixes$prefix){
   #geoDist <- dist.torus(coords)
   #geoDist <- as.matrix(geoDist)
   
-  edge <- edge[lower.tri(sampled.coal)]
+  edge <- sampled.coal[lower.tri(sampled.coal)]
   edge <- as.data.frame(edge)
   geoDist.edge <- as.matrix(geoDist)
   geoDist.edge <- geoDist.edge[lower.tri(geoDist.edge)]
