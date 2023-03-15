@@ -1,0 +1,79 @@
+initialize() {
+    initializeSLiMModelType("nonWF");
+    initializeSLiMOptions(dimensionality="xy", periodicity="xy");
+    initializeTreeSeq();
+    
+    defineConstant("W", 25.0);  // width of the simulated area 
+    //defineConstant("SIGMA", 0.5); // interaction width
+    //defineConstant("K", 2);  // carrying-capacity density
+	 catn(c("WORKINGDIR =", WORKINGDIR));
+	 catn(c("n =", n));
+	 //catn(c("TREEFILE =", TREEFILE));    
+    catn(c("SIGMA =", SIGMA));
+    catn(c("K =", K));
+    defineConstant("G", 1e8);  // genome length
+    defineConstant("FECUN", 2); // mean fecundity
+
+    initializeMutationType("m1", 0.5, "g", 0.0, 2);
+    initializeGenomicElementType("g1", m1, 1.0);
+    initializeGenomicElement(g1, 0, G-1);
+    initializeMutationRate(0.0);
+    initializeRecombinationRate(1e-9);
+    
+    // spatial competition
+    initializeInteractionType(1, "xy", reciprocal=T, maxDistance=3*SIGMA);
+    i1.setInteractionFunction("n", 1.0, SIGMA); //maximum is rescaled by localPopulationDensity()
+    
+    // mate choice
+    initializeInteractionType(2, "xy", reciprocal=T, maxDistance=3*SIGMA);
+    i2.setInteractionFunction("n", 1/(2*PI*SIGMA^2), SIGMA);
+}
+
+reproduction() {
+	mate = i2.drawByStrength(individual, 1);
+    if (mate.size()) {
+        nOff = rpois(1, FECUN);
+        for (i in seqLen(nOff)) {
+           pos = individual.spatialPosition + rnorm(2, 0, SIGMA);
+           offspring = p1.addCrossed(individual, mate);
+           offspring.setSpatialPosition(p1.pointPeriodic(pos));
+          	}
+        }
+        return;
+        }
+        
+1 early() {
+    sim.addSubpop("p1", asInteger(K * W * W));
+    p1.setSpatialBounds(c(0, 0, W, W));
+    for (ind in p1.individuals) {
+        ind.setSpatialPosition(p1.pointUniform());
+        ind.tag = 0;
+    }
+    i1.evaluate();
+
+}
+
+early() {
+    i1.evaluate(p1);
+    inds = p1.individuals;
+	 inds[inds.age >= 1].fitnessScaling = 0.0;
+    competition = i1.localPopulationDensity(inds[inds.age < 1]); 
+    inds[inds.age < 1].fitnessScaling = K / competition; 
+    }  
+
+1: late() {
+   // to be ready for mate choice
+   i2.evaluate(p1);
+}
+
+50000 late(){
+
+catn("Reached generation 50k");
+}
+
+100000 late(){
+	outname= WORKINGDIR+TREEFILE;
+	sim.treeSeqOutput(outname);
+	writeFile(outname + "_popsize", paste(p1.individualCount));
+	sim.simulationFinished();
+	}
