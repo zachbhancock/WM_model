@@ -24,13 +24,13 @@ print(f"TREEFILE is ", TREEFILE)
 print(f"prefix is ", prefix)
 print(f"N is ", N)
 
-ts = pyslim.load(prefix)
+ts = tskit.load(prefix)
 ts = ts.simplify()
-recap_ts = ts.recapitate(recombination_rate=1e-8, Ne=2*N)
-ts = pyslim.SlimTreeSequence(msprime.mutate(recap_ts, rate=1e-7))
+recap_ts = pyslim.recapitate(recombination_rate=1e-8, ancestral_Ne=2*N)
+ts = msprime.sim_mutations(recap_ts, rate=1e-7, random_seed=12345)
 
 #specific places
-alive = ts.individuals_alive_at(0)
+alive = pyslim.individuals_alive_at(ts, 0)
 
 groups = {
     'alive' : np.random.choice(alive, size=100, replace=False),
@@ -86,7 +86,4 @@ with open(prefix+"-pi_locs.txt", "w") as indfile:
                 str(ind.location[0]), str(ind.location[1])]
         indfile.writelines("\t".join(data) + "\n")
 
-#print vcfs
-with open(prefix+"-vcf.vcf", "w") as vcf_file:
-   ts.write_vcf(vcf_file, ploidy=2)
 exit()
