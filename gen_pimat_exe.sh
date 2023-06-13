@@ -16,8 +16,8 @@ if [ ! -d $WORKINGDIR ]; then mkdir $WORKINGDIR; fi
 if [ ! -d $OUTDIR ]; then mkdir $OUTDIR; fi
 
 #copy scripts to execute node
-cp $SLURM_SUBMIT_DIR/slim_recipes/test.slim $WORKINGDIR
-cp $SLURM_SUBMIT_DIR/hpcc_processing_slim/processing_slim.py $WORKINGDIR
+cp $SLURM_SUBMIT_DIR/test.slim $WORKINGDIR
+cp $SLURM_SUBMIT_DIR/processing_slim.py $WORKINGDIR
 
 #move to execute node
 cd $WORKINGDIR
