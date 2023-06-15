@@ -7,7 +7,7 @@
 #define unique slurm jobid
 UNIQUEJOBID=${SLURM_ARRAY_JOB_ID}_"slimIter_"${SLURM_ARRAY_TASK_ID}
 #define working dir on execute node
-WORKINGDIR=/tmp/local/$SLURM_JOB_ID/$UNIQUEJOBID
+WORKINGDIR=/home/hancockz/$SLURM_JOB_ID/$UNIQUEJOBID
 #define prefix name for outputs
 TREEFILE="/wmModel_"${UNIQUEJOBID}"_sigma_"$SIGMA"_K_"$K
 
