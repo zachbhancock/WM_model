@@ -72,6 +72,7 @@ echo "TIME,END,PYTHON,$d"
 #pi and geographic distance matrices
 
 #copy all output files back to storage node
+cp wmModel_* $OUTDIR
 cp wmModel_* $WORKINGDIR
 wait
 #rm -rf $WORKINGDIR
