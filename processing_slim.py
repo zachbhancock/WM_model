@@ -26,7 +26,7 @@ print(f"N is ", N)
 
 ts = tskit.load(prefix)
 ts = ts.simplify()
-recap_ts = pyslim.recapitate(recombination_rate=1e-8, ancestral_Ne=2*N)
+recap_ts = pyslim.recapitate(ts, recombination_rate=1e-8, ancestral_Ne=2*N)
 ts = msprime.sim_mutations(recap_ts, rate=1e-7, random_seed=12345)
 
 #specific places
