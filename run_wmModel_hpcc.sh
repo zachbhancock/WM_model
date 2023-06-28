@@ -32,7 +32,7 @@ cd $WORKINGDIR
 #module purge
 #module load GCC/10.2.0  OpenMPI/4.0.5
 #module load foss/2020b
-module load R/4.0.3
+module load R/4.2.0
 
 d=`date +%m,%d,%Y,%H,%M`
 echo "TIME,START,EXE_WM,$d"
