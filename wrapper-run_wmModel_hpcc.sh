@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #define variables:
-storagenode=/WM_model/slim_output #path to main node where input files live
+storagenode=slim_output #path to main node where input files live
 
 logfilesdir=logfiles_run_wmModel #name of directory to create and then write log files to
 
