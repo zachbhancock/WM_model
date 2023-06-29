@@ -36,7 +36,7 @@ print(paste0("workingdir is ", workingdir))
 #treefile = "/linear_46352997_slimIter_11_sigma_0.2"
 
 #source our functions 
-source(wm_lib.R)
+source("wm_lib.R")
 
 if (model_flavor == "wishart") { stanFile <- "wm_hom_cmpPar_mod_block_scaled.R" }   
 if (model_flavor == "cmplnl") { stanFile <- "wm_hom_cmpPar_cmpLnL_mod_block.R" }  
