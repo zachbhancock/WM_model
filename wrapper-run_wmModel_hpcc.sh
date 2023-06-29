@@ -6,7 +6,7 @@ storagenode=slim_output #path to main node where input files live
 logfilesdir=logfiles_run_wmModel #name of directory to create and then write log files to
 
 datesuffix=$(date +%m-%d-%Y.%H)
-outdir=$storagenode/ALL_wmModel_outputs-$datesuffix #name of directory to create and write all outputs to
+outdir=wm_output #name of directory to create and write all outputs to
 indir=$storagenode
 finaldir=$storagenode/summary_files #where the models go to die
 
