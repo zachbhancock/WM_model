@@ -28,6 +28,12 @@ cd $WORKINGDIR
 
 ### RUN STAN MODEL IN R ###
 
+#tell me what files are in WORKINGDIR
+echo "printing working dir stuff"
+
+pwd
+ls
+
 # load all of the programs that we want to use
 #module purge
 #module load GCC/10.2.0  OpenMPI/4.0.5
