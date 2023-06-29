@@ -41,7 +41,7 @@ source("wm_lib.R")
 if (model_flavor == "wishart") { stanFile <- "wm_hom_cmpPar_mod_block_scaled.R" }   
 if (model_flavor == "cmplnl") { stanFile <- "wm_hom_cmpPar_cmpLnL_mod_block.R" }  
 print(paste0("using stanFile: ", stanFile))
-source(paste0(workingdir,"/",stanFile))
+source(stanFile)
 ibsMod <- stan_model(model_code=stanBlock)
 
 #print objects loaded in R (so we can see functions and variables were correctly loaded)
