@@ -63,15 +63,21 @@ for (loop.iter in 1:length(list_of_prefixes$Robjfile)) {
     dplyr::select(slurm_job_id, slimIter, sigma, K, model_flavor)
 
   #read dist files
-  gen.dist <- data.matrix(read.table(file=paste0(workingdir, "/", prefix, "-pi.csv"), header=TRUE))
+  K.density <- read.table(file=paste0(prefix, "_density"), header = FALSE)
+  K.density <- K.density$V1
+  MK_eff_sigma <- read.table(file=paste0(prefix, "-eff_disp.txt"), header = FALSE)
+  MK_eff_sigma <- MK_eff_sigma$V1
+  eff_density <- read.table(file=paste0(prefix, "-eff_dens.txt"), header=FALSE)
+  eff_density <- eff_density$V1
+  gen.dist <- data.matrix(read.table(file=paste0(prefix, "-pi.csv"), header=TRUE))
   gen.dist <- as.matrix(gen.dist)
   gen.dist <- gen.dist[lower.tri(gen.dist)]
   gen.dist <- as.data.frame(gen.dist)
-  fst <- data.matrix(read.table(file=paste0(workingdir, "/", prefix, "-Fst.csv"), header=TRUE))
+  fst <- data.matrix(read.table(file=paste0(prefix, "-Fst.csv"), header=TRUE))
   fst <- as.matrix(fst)
   fst <- fst[lower.tri(fst)]
   fst <- as.data.frame(fst)
-  geo.dist <- read.table(file=paste0(workingdir, "/", prefix, "-pi_locs.txt"), header = TRUE)
+  geo.dist <- read.table(file=paste0(prefix, "-pi_locs.txt"), header = TRUE)
   coords.dist <- geo.dist[,c("x","y")]
   geo.dist <- fields::rdist(coords.dist)
   geo.dist <- as.matrix(geo.dist)
@@ -124,7 +130,7 @@ for (loop.iter in 1:length(list_of_prefixes$Robjfile)) {
     merge(., m_pi, by = c("iteration","chain")) %>% 
     merge(., post_pi, by = c("iteration","chain"))
   wmModel_pi <- wmModel_pi %>% 
-    mutate(theo_nbhd = 4*pi*(K*0.65)*(sigma^2)) %>% 
+    mutate(theo_nbhd = 4*pi*(K.density)*(sigma^2)) %>% 
     mutate(delta_nbhd = theo_nbhd - nbhd)
   
   wmModel_pi <- wmModel_pi %>% dplyr::select(slurm_job_id, slimIter, sigma, K,
@@ -134,13 +140,18 @@ for (loop.iter in 1:length(list_of_prefixes$Robjfile)) {
   
   wmModel_out <- rbind(wmModel_out, wmModel_pi)
   wmModel_out$Rousset_Nb <- Rousset_Nb
+  wmModel_out$MK_eff_nbhd <- 4*pi*(K.density)*MK_eff_sigma
+  wmModel_out$theo_eff_nbhd <- 4*pi*(K.density)*(sigma*sqrt(3/2))^2
+  wmModel_out$MK_eff_dens_nbhd <- 4*pi*(eff_density)*MK_eff_sigma
+  wmModel_out$theo_eff_dens_nbhd <- 4*pi*(eff_density)*(sigma*sqrt(3/2))^2
+  
   
 }
 
 wmModel_pi <- wmModel_out %>% filter(is.na(slurm_job_id)==FALSE)
 
 #save text output
-write.table(wmModel_pi, file=paste0(workingdir, "/", prefix, "-est.txt"))
+write.table(wmModel_pi, file=paste0(prefix, "-est.txt"))
 
 #end
 
