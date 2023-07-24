@@ -5,7 +5,7 @@
 #define unique slurm jobid
 UNIQUEJOBID=${SLURM_JOB_ID}
 #define working dir on execute node
-WORKINGDIR=wm_output_2
+WORKINGDIR=wm_output_3
 #define prefix name for outputs
 #TREEFILE="/wmModel_sigma_"$SIGMA"_K_"$K
 
