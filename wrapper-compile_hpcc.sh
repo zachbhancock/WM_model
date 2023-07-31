@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #define variables:
-storagenode=slim_output #path to main node where input files live
+storagenode=compiled_output #path to main node where input files live
 
 logfilesdir=logfiles_run_wmModel #name of directory to create and then write log files to
 
@@ -27,7 +27,7 @@ time=168:00:00
 #---------------------------------------------------------
 
 jobname=wm_Model #label for SLURM book-keeping
-executable=run_wmModel_hpcc.sh #script to run
+executable=run_compile_hpcc.sh #script to run
 
 #check if logfiles directory has been created in submit dir yet; if not, make one
 if [ ! -d ./$logfilesdir ]; then mkdir ./$logfilesdir; fi
