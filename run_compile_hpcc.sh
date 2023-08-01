@@ -14,10 +14,10 @@ if [ ! -d $WORKINGDIR ]; then mkdir $WORKINGDIR; fi
 if [ ! -d $OUTDIR ]; then mkdir $OUTDIR; fi
 
 #copy scripts to execute node
-cp $SLURM_SUBMIT_DIR/run_final_hpcc.r $WORKINGDIR
-cp $SLURM_SUBMIT_DIR/wmModel_plots.R $WORKINGDIR
-cp $SLURM_SUBMIT_DIR/slim_output/wmModel_*_sigma_"$SIGMA"_K_"$K"-pi.csv $WORKINGDIR
-cp $SLURM_SUBMIT_DIR/slim_output/wmModel_*_sigma_"$SIGMA"_K_"$K"-pi_locs.txt $WORKINGDIR
+#cp $SLURM_SUBMIT_DIR/run_final_hpcc.r $WORKINGDIR
+#cp $SLURM_SUBMIT_DIR/wmModel_plots.R $WORKINGDIR
+#cp $SLURM_SUBMIT_DIR/slim_output/wmModel_*_sigma_"$SIGMA"_K_"$K"-pi.csv $WORKINGDIR
+#cp $SLURM_SUBMIT_DIR/slim_output/wmModel_*_sigma_"$SIGMA"_K_"$K"-pi_locs.txt $WORKINGDIR
 
 
 #move to execute node
