@@ -39,11 +39,11 @@ list_of_prefixes <- list.files(path = workingdir, pattern = paste0("*_out.Robj")
   as.data.frame() %>% dplyr::rename("Robjfile" = ".") %>% 
   tidyr::separate(., Robjfile, into = c("prefix","temp"), sep = "-", extra = "drop", remove = FALSE) %>% 
   distinct() %>% 
-  tidyr::separate(., temp, into = c("garbage","model_flavor"), sep = "_", extra = "drop") %>% dplyr::select(-garbage) %>%  distinct()
+  tidyr::separate(., temp, into = c("garbage"), sep = "_", extra = "drop") %>% dplyr::select(-garbage) %>%  distinct()
 
 #process each square iteration / size combo
 wmModel_out <- data.frame("slurm_job_id"=NA, "slimIter"=NA, "sigma"=NA, "K"=NA,
-                          "model_flavor"=NA, "chain"=NA, "iteration"=NA,
+                          "chain"=NA, "iteration"=NA,
                           "col_pi"=NA, "nbhd"=NA, "inDeme"=NA, "m"=NA, "posterior"=NA,
                           "theo_nbhd"=NA, "delta_nbhd"=NA)
 
