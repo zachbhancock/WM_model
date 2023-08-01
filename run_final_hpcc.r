@@ -51,15 +51,14 @@ for (loop.iter in 1:length(list_of_prefixes$Robjfile)) {
   #define some variables
   Robjfile = list_of_prefixes[loop.iter, ]$Robjfile
   prefix = list_of_prefixes[loop.iter, ]$prefix
-  model_flavor = list_of_prefixes[loop.iter, ]$model_flavor
+  #model_flavor = list_of_prefixes[loop.iter, ]$model_flavor
   
   print(paste0("starting file: ", Robjfile))
   
   labels <- prefix %>% as.data.frame() %>% dplyr::rename("prefix"=".") %>%
     tidyr::separate(., prefix, into = c("garbage","slurm_job_id","garbage2","slimIter","garbage3","sigma","garbage4","K"), sep = "_") %>%
-    mutate(model_flavor = model_flavor) %>% 
     mutate(K = as.numeric(K), sigma = as.numeric(sigma)) %>% 
-    dplyr::select(slurm_job_id, slimIter, sigma, K, model_flavor)
+    dplyr::select(slurm_job_id, slimIter, sigma, K)
 
   #read dist files
   K.density <- read.table(file=paste0(prefix, "_density"), header = FALSE)
@@ -133,7 +132,7 @@ for (loop.iter in 1:length(list_of_prefixes$Robjfile)) {
     mutate(delta_nbhd = theo_nbhd - nbhd)
   
   wmModel_pi <- wmModel_pi %>% dplyr::select(slurm_job_id, slimIter, sigma, K,
-                                             model_flavor, chain, iteration,
+                                             chain, iteration,
                                              col_pi, nbhd, inDeme, m, posterior,
                                              theo_nbhd, delta_nbhd)
   
