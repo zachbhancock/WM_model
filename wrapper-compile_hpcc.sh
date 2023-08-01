@@ -10,7 +10,7 @@ outdir=compiled_output #name of directory to create and write all outputs to
 indir=$storagenode
 finaldir=$storagenode/summary_files #where the models go to die
 
-model_flavor=wishart #value wishart or cmplnl
+#model_flavor=wishart #value wishart or cmplnl
 
 #define some values to pass into slim
 vector_of_K_values=( 2.0 5.0 10.0 25.0 )
@@ -38,7 +38,7 @@ do
 	for K in "${vector_of_K_values[@]}"
 	do
 	jid_pi=$(sbatch --job-name=$jobname \
-					--export=CPUS=$cpus,STORAGENODE=$storagenode,OUTDIR=$outdir,INDIR=$indir,LOGFILESDIR=$logfilesdir,K=$K,SIGMA=$sigma,MODEL_FLAVOR=$model_flavor \
+					--export=CPUS=$cpus,STORAGENODE=$storagenode,OUTDIR=$outdir,INDIR=$indir,LOGFILESDIR=$logfilesdir,K=$K,SIGMA=$sigma \
 					--cpus-per-task=$cpus \
 					--mem-per-cpu=$ram_per_cpu \
 					--output=./$logfilesdir/${jobname}_%A_sigma_${sigma}_K_${K}.out \
