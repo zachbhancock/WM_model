@@ -21,7 +21,7 @@ print("arguments passed:")
 cat(args, sep = "\n")
 
 #define some variables (pulled in from bash script)
-workingdir = compiled_output
+workingdir = "/home/hancockz/WM_model/compiled_out"
 model_flavor = Wishart
 #treefile = args[2] %>% gsub("/", "", .)
 #note to Zach for testing, run: treefile="linear_42014183_slimIter_0_sigma_0.5"
