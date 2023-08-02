@@ -26,36 +26,36 @@ time=168:00:00
 
 #---------------------------------------------------------
 
-jobname=wm_Model #label for SLURM book-keeping
-executable=run_compile_hpcc.sh #script to run
-
-#check if logfiles directory has been created in submit dir yet; if not, make one
-if [ ! -d ./$logfilesdir ]; then mkdir ./$logfilesdir; fi
-
-#submit job to cluster
-for sigma in "${vector_of_sigma_values[@]}"
-do
-	for K in "${vector_of_K_values[@]}"
-	do
-	jid_pi=$(sbatch --job-name=$jobname \
-					--export=CPUS=$cpus,STORAGENODE=$storagenode,OUTDIR=$outdir,INDIR=$indir,LOGFILESDIR=$logfilesdir,K=$K,SIGMA=$sigma \
-					--cpus-per-task=$cpus \
-					--mem-per-cpu=$ram_per_cpu \
-					--output=./$logfilesdir/${jobname}_%A_sigma_${sigma}_K_${K}.out \
-					--error=./$logfilesdir/${jobname}_%A_sigma_${sigma}_K_${K}.err \
-					--time=$time \
-					$executable \
-					|cut -d " " -f 4)
-	jid_pi=:${jid_pi}
-	echo "submitted job has sigma $sigma and K $K and jid_pi $jid_pi"
-	echo ""
-	declare "all_pis_jids=${jid_pi}${all_pis_jids}"
-	done
-	
-done
-
-echo "DONE SUBMITTING ALL $jobname jobs"
-echo "all_pis_jids is $all_pis_jids"
+#jobname=wm_Model #label for SLURM book-keeping
+#executable=run_compile_hpcc.sh #script to run
+#
+##check if logfiles directory has been created in submit dir yet; if not, make one
+#if [ ! -d ./$logfilesdir ]; then mkdir ./$logfilesdir; fi
+#
+##submit job to cluster
+#for sigma in "${vector_of_sigma_values[@]}"
+#do
+#	for K in "${vector_of_K_values[@]}"
+#	do
+#	jid_pi=$(sbatch --job-name=$jobname \
+#					--export=CPUS=$cpus,STORAGENODE=$storagenode,OUTDIR=$outdir,INDIR=$indir,LOGFILESDIR=$logfilesdir,K=$K,SIGMA=$sigma \
+#					--cpus-per-task=$cpus \
+#					--mem-per-cpu=$ram_per_cpu \
+#					--output=./$logfilesdir/${jobname}_%A_sigma_${sigma}_K_${K}.out \
+#					--error=./$logfilesdir/${jobname}_%A_sigma_${sigma}_K_${K}.err \
+#					--time=$time \
+#					$executable \
+#					|cut -d " " -f 4)
+#	jid_pi=:${jid_pi}
+#	echo "submitted job has sigma $sigma and K $K and jid_pi $jid_pi"
+#	echo ""
+#	declare "all_pis_jids=${jid_pi}${all_pis_jids}"
+#	done
+#	
+#done
+#
+#echo "DONE SUBMITTING ALL $jobname jobs"
+#echo "all_pis_jids is $all_pis_jids"
 
 
 #---------------------------------------------------------
@@ -64,7 +64,7 @@ echo "all_pis_jids is $all_pis_jids"
 #note - dependency afterany says wait for all jobs to finish and then run (doesn't matter if jobs have exit status of 0 or not)
 
 jobname=run-compileoutputs #label for SLURM book-keeping
-executable=run_collate_all.sh #script to run
+executable=run_compile_hpcc.sh #script to run
 
 sbatch --job-name=$jobname \
 					--export=CPUS=$cpus,STORAGENODE=$storagenode,OUTDIR=$outdir,LOGFILESDIR=$logfilesdir,FINALDIR=$finaldir \
@@ -72,7 +72,6 @@ sbatch --job-name=$jobname \
 					--mem-per-cpu=$ram_per_cpu \
 					--output=./$logfilesdir/${jobname}_%A.out \
 					--error=./$logfilesdir/${jobname}_%A.err \
-					--dependency=afterany$(eval echo \$all_pis_jids) \
 					--kill-on-invalid-dep=yes \
 					--time=$time \
 					$executable
