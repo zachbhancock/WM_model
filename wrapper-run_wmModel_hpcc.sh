@@ -3,7 +3,7 @@
 #define variables:
 storagenode=slim_output #path to main node where input files live
 
-logfilesdir=logfiles_run_wmModel #name of directory to create and then write log files to
+logfilesdir=logfiles_expcon_wmModel #name of directory to create and then write log files to
 
 datesuffix=$(date +%m-%d-%Y.%H)
 outdir=wm_expcon_output #name of directory to create and write all outputs to
