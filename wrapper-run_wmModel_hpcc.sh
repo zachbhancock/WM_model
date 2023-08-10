@@ -6,15 +6,15 @@ storagenode=slim_output #path to main node where input files live
 logfilesdir=logfiles_run_wmModel #name of directory to create and then write log files to
 
 datesuffix=$(date +%m-%d-%Y.%H)
-outdir=wm_output_2 #name of directory to create and write all outputs to
+outdir=wm_expcon_output #name of directory to create and write all outputs to
 indir=$storagenode
 finaldir=$storagenode/summary_files #where the models go to die
 
 model_flavor=wishart #value wishart or cmplnl
 
 #define some values to pass into slim
-vector_of_K_values=( 2.0 5.0 10.0 25.0 )
-vector_of_sigma_values=( 0.5 0.75 1.0 1.5 2.0 )
+vector_of_K_values=( 5.0 10.0 )
+vector_of_sigma_values=( 1.0 )
 
 cpus=2 #number of CPUs to request/use per dataset
 ram_per_cpu=16G #amount of RAM to request/use per CPU
