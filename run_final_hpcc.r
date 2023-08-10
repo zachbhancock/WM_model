@@ -61,8 +61,8 @@ for (loop.iter in 1:length(list_of_prefixes$Robjfile)) {
     dplyr::select(slurm_job_id, slimIter, sigma, K)
 
   #read dist files
-  K.density <- read.table(file=paste0(prefix, "_density"), header = FALSE)
-  K.density <- K.density$V1
+  K_density <- read.table(file=paste0(prefix, "_density"), header = FALSE)
+  K_density <- K_density$V1
   MK_eff_sigma <- read.table(file=paste0(prefix, "-eff_disp.txt"), header = FALSE)
   MK_eff_sigma <- MK_eff_sigma$V1
   eff_density <- read.table(file=paste0(prefix, "-eff_dens.txt"), header=FALSE)
@@ -91,7 +91,7 @@ for (loop.iter in 1:length(list_of_prefixes$Robjfile)) {
   #Rousset method for estimating Nb
   dist.fst$y <- dist.fst$fst / (1 - dist.fst$fst)
   reg <- lm(dist.fst$y ~ dist.fst$geo.dist)
-  beta <- summary(reg)$coefficients["x", 1]
+  beta <- summary(reg)$coefficients[2, 1]
   Rousset_Nb <- 1 / beta
   
   #read WM_model output
@@ -138,10 +138,13 @@ for (loop.iter in 1:length(list_of_prefixes$Robjfile)) {
   
   wmModel_out <- rbind(wmModel_out, wmModel_pi)
   wmModel_out$Rousset_Nb <- Rousset_Nb
-  wmModel_out$MK_eff_nbhd <- 4*pi*(K.density)*MK_eff_sigma
-  wmModel_out$theo_eff_nbhd <- 4*pi*(K.density)*(sigma*sqrt(3/2))^2
-  wmModel_out$MK_eff_dens_nbhd <- 4*pi*(eff_density)*MK_eff_sigma
-  wmModel_out$theo_eff_dens_nbhd <- 4*pi*(eff_density)*(sigma*sqrt(3/2))^2
+  wmModel_out$MK_eff_nbhd <- 4*pi*(K_density)*MK_eff_sigma
+  wmModel_out$K_density <- K_density
+  wmModel_out$eff_density <- eff_density
+  wmModel_out$theo_eff_nbhd <- 4*pi*(wmModel_out$K_density)*(wmModel_pi$sigma[1]*sqrt(3/2))^2
+  wmModel_out$MK_eff_sigma <- MK_eff_sigma
+  wmModel_out$MK_eff_dens_nbhd <- 4*pi*(wmModel_out$eff_density)*MK_eff_sigma
+  wmModel_out$theo_eff_dens_nbhd <- 4*pi*(wmModel_out$eff_density)*(wmModel_pi$sigma[1]*sqrt(3/2))^2
   
   
 }
