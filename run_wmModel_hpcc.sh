@@ -5,7 +5,7 @@
 #define unique slurm jobid
 UNIQUEJOBID=${SLURM_JOB_ID}
 #define working dir on execute node
-WORKINGDIR=excon_output
+WORKINGDIR=expcon_output
 #define prefix name for outputs
 #TREEFILE="/wmModel_sigma_"$SIGMA"_K_"$K
 
@@ -19,8 +19,8 @@ cp $SLURM_SUBMIT_DIR/wmModel_plots.R $WORKINGDIR
 cp $SLURM_SUBMIT_DIR/wm_lib.R $WORKINGDIR
 cp $SLURM_SUBMIT_DIR/models/wm_hom_cmpPar_mod_block_scaled.R $WORKINGDIR
 cp $SLURM_SUBMIT_DIR/models/wm_hom_cmpPar_cmpLnL_mod_block.R $WORKINGDIR
-cp $SLURM_SUBMIT_DIR/excon_output/wmModel_*_sigma_"$SIGMA"_K_"$K"-pi.csv $WORKINGDIR
-cp $SLURM_SUBMIT_DIR/excon_output/wmModel_*_sigma_"$SIGMA"_K_"$K"-pi_locs.txt $WORKINGDIR
+cp $SLURM_SUBMIT_DIR/wmModel_*_sigma_"$SIGMA"_K_"$K"-pi.csv $WORKINGDIR
+cp $SLURM_SUBMIT_DIR/wmModel_*_sigma_"$SIGMA"_K_"$K"-pi_locs.txt $WORKINGDIR
 
 
 #move to execute node
