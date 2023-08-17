@@ -16,7 +16,7 @@ sigma=1
 
 cpus=2 #number of CPUs to request/use per dataset
 ram_per_cpu=16G #amount of RAM to request/use per CPU
-time=90:00:00
+time=60:00:00
 
 #slurm variable key:
 # %A = SLURM_ARRAY_JOB_ID
@@ -47,9 +47,8 @@ jid_pi=$(sbatch --job-name=$jobname \
 				|awk -v "nID=$n_iterations" '{for (i=0; i<nID; i++) printf(":%s",$4"_"i)}')
 declare "all_pis_jids=${jid_pi}${all_pis_jids}"
 	
-	echo "submitted job has sigma value $sigma and K value $K; running $n_iterations slim iterations"
-	echo ""
-	done
+echo "submitted job has sigma value $sigma and K value $K; running $n_iterations slim iterations"
+echo ""
 done
 
 echo "all_pis_jids is $all_pis_jids"
