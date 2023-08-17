@@ -4,8 +4,8 @@ initialize() {
     initializeTreeSeq();
     
     defineConstant("W", 25.0);  // width of the simulated area 
-    //defineConstant("SIGMA", 1.0); // interaction width
-    //defineGlobal("K", 10);  // carrying-capacity density
+    defineConstant("SIGMA", 1.0); // interaction width
+    defineGlobal("K", 10);  // carrying-capacity density
 	 catn(c("WORKINGDIR =", WORKINGDIR));
 	 catn(c("n =", n));
 	 catn(c("TREEFILE =", TREEFILE));    
@@ -70,6 +70,7 @@ early() {
 50000 late(){
 
 catn("Reached generation 50k");
+outname= WORKINGDIR+TREEFILE;
 writeFile(outname + "_density", paste(p1.individualCount / 625));
 }
 
