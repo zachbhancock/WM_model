@@ -11,8 +11,8 @@ outdir=$storagenode/allpimat_wmModel_outputs-$datesuffix #name of directory to c
 n_iterations=10 #number of iterations to run of each identical simulation
 
 #define some values to pass into slim
-vector_of_K_values=( 10.0 )
-vector_of_sigma_values=( 1.0 )
+K=5
+sigma=1
 
 cpus=2 #number of CPUs to request/use per dataset
 ram_per_cpu=16G #amount of RAM to request/use per CPU
@@ -31,21 +31,21 @@ executable=gen_con_run.sh #script to run
 if [ ! -d ./$logfilesdir ]; then mkdir ./$logfilesdir; fi
 
 #submit job to cluster
-for sigma in "${vector_of_sigma_values[@]}"
-do
-	for K in "${vector_of_K_values[@]}"
-	do
-	jid_pi=$(sbatch --job-name=$jobname \
-					--export=CPUS=$cpus,STORAGENODE=$storagenode,OUTDIR=$outdir,LOGFILESDIR=$logfilesdir,K=$K,SIGMA=$sigma \
-					--cpus-per-task=$cpus \
-					--mem-per-cpu=$ram_per_cpu \
-					--array=[0-$((n_iterations-1))]%n_iterations \
-					--output=./$logfilesdir/${jobname}_%A_slimIter_%a_sigma_${sigma}_K_${K}.out \
-					--error=./$logfilesdir/${jobname}_%A_slimIter_%a_sigma_${sigma}_K_${K}.err \
-					--time=$time \
-					$executable \
-					|awk -v "nID=$n_iterations" '{for (i=0; i<nID; i++) printf(":%s",$4"_"i)}')
-	declare "all_pis_jids=${jid_pi}${all_pis_jids}"
+#for sigma in "${vector_of_sigma_values[@]}"
+#do
+#	for K in "${vector_of_K_values[@]}"
+#	do
+jid_pi=$(sbatch --job-name=$jobname \
+				--export=CPUS=$cpus,STORAGENODE=$storagenode,OUTDIR=$outdir,LOGFILESDIR=$logfilesdir,K=$K,SIGMA=$sigma \
+				--cpus-per-task=$cpus \
+				--mem-per-cpu=$ram_per_cpu \
+				--array=[0-$((n_iterations-1))]%n_iterations \
+				--output=./$logfilesdir/${jobname}_%A_slimIter_%a_sigma_${sigma}_K_${K}.out \
+				--error=./$logfilesdir/${jobname}_%A_slimIter_%a_sigma_${sigma}_K_${K}.err \
+				--time=$time \
+				$executable \
+				|awk -v "nID=$n_iterations" '{for (i=0; i<nID; i++) printf(":%s",$4"_"i)}')
+declare "all_pis_jids=${jid_pi}${all_pis_jids}"
 	
 	echo "submitted job has sigma value $sigma and K value $K; running $n_iterations slim iterations"
 	echo ""
