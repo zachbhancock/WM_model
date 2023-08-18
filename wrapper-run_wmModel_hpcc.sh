@@ -18,7 +18,7 @@ vector_of_sigma_values=( 1.0 )
 
 cpus=2 #number of CPUs to request/use per dataset
 ram_per_cpu=16G #amount of RAM to request/use per CPU
-time=168:00:00
+time=72:00:00
 
 #slurm variable key:
 # %A = SLURM_ARRAY_JOB_ID
