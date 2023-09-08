@@ -43,9 +43,6 @@ export PATH=$PATH:$HOME/miniconda3/bin
 source activate myconda
 
 slim -d "WORKINGDIR='$WORKINGDIR'" -d "TREEFILE='$TREEFILE'" -d "n='$SLURM_ARRAY_TASK_ID'" contraction_10.slim
-slim -d "WORKINGDIR='$WORKINGDIR'" -d "TREEFILE='$TREEFILE'" -d "n='$SLURM_ARRAY_TASK_ID'" contraction_1.slim
-slim -d "WORKINGDIR='$WORKINGDIR'" -d "TREEFILE='$TREEFILE'" -d "n='$SLURM_ARRAY_TASK_ID'" contraction_01.slim
-
 
 echo "DONE RUNNING SLIM"
 d=`date +%m,%d,%Y,%H,%M`
