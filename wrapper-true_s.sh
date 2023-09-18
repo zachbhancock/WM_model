@@ -3,7 +3,7 @@
 #define variables:
 storagenode=compiled_output #path to main node where input files live
 
-logfilesdir=true_s #name of directory to create and then write log files to
+logfilesdir=log_true_s #name of directory to create and then write log files to
 
 datesuffix=$(date +%m-%d-%Y.%H)
 outdir=true_s_out #name of directory to create and write all outputs to
@@ -26,7 +26,7 @@ time=120:00:00
 
 #---------------------------------------------------------
 
-jobname=true_s #label for SLURM book-keeping
+jobname=wmModel #label for SLURM book-keeping
 executable=run_true_s.sh #script to run
 
 #check if logfiles directory has been created in submit dir yet; if not, make one
