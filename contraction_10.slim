@@ -78,13 +78,13 @@ writeFile(outname + "_density_1", paste(p1.individualCount / 625));
 
 defineGlobal("K", 5);}
 
-
-100800 late(){
+//2*5*25^2*0.1 = 625 generations
+100625 late(){
 	outname= WORKINGDIR+TREEFILE;
 	catn(outname);
 	sim.treeSeqOutput(outname);
 	writeFile(outname + "_popsize", paste(p1.individualCount));
 	writeFile(outname + "_time", paste("10"));
-	writeFile(outname + "_density_2", paste(p1.individualCount / 625))
+	writeFile(outname + "_density_2", paste(p1.individualCount / 625));
 	sim.simulationFinished();
 	}
