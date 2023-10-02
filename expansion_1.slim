@@ -71,7 +71,7 @@ early() {
 
 catn("Reached generation 50k");
 outname= WORKINGDIR+TREEFILE;
-writeFile(outname + "_density", paste(p1.individualCount / 625));
+writeFile(outname + "_density_1", paste(p1.individualCount / 625));
 }
 
 100000 late(){
@@ -85,5 +85,6 @@ defineGlobal("K", 10);}
 	sim.treeSeqOutput(outname);
 	writeFile(outname + "_popsize", paste(p1.individualCount));
 	writeFile(outname + "_time", paste("1"));
+	writeFile(outname + "_density_2", paste(p1.individualCount / 625))
 	sim.simulationFinished();
 	}
