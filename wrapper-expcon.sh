@@ -25,7 +25,7 @@ time=60:00:00
 #---------------------------------------------------------
 
 jobname=run-collectpi #label for SLURM book-keeping
-executable=gen_con_run.sh #script to run
+executable=gen_expcon_run.sh #script to run
 
 #check if logfiles directory has been created in submit dir yet; if not, make one
 if [ ! -d ./$logfilesdir ]; then mkdir ./$logfilesdir; fi
