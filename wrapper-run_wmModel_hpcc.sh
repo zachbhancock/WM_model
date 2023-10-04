@@ -1,12 +1,12 @@
 #!/bin/bash
 
 #define variables:
-storagenode=expcon_10 #path to main node where input files live
+storagenode=expcon_output #path to main node where input files live
 
-logfilesdir=logfiles_expcon_10_wmModel #name of directory to create and then write log files to
+logfilesdir=logfiles_expcon_01_wmModel #name of directory to create and then write log files to
 
 datesuffix=$(date +%m-%d-%Y.%H)
-outdir=wm_expcon_output_10 #name of directory to create and write all outputs to
+outdir=wm_expcon_01 #name of directory to create and write all outputs to
 indir=$storagenode
 finaldir=$storagenode/summary_files #where the models go to die
 
@@ -18,7 +18,7 @@ vector_of_sigma_values=( 1 )
 
 cpus=2 #number of CPUs to request/use per dataset
 ram_per_cpu=16G #amount of RAM to request/use per CPU
-time=120:00:00
+time=60:00:00
 
 #slurm variable key:
 # %A = SLURM_ARRAY_JOB_ID
