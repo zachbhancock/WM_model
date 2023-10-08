@@ -17,7 +17,7 @@ vector_of_K_values=( 5 10 )
 vector_of_sigma_values=( 1 )
 
 cpus=2 #number of CPUs to request/use per dataset
-ram_per_cpu=16G #amount of RAM to request/use per CPU
+ram_per_cpu=1G #amount of RAM to request/use per CPU
 time=60:00:00
 
 #slurm variable key:
