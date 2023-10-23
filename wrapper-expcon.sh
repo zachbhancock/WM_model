@@ -36,6 +36,7 @@ if [ ! -d ./$logfilesdir ]; then mkdir ./$logfilesdir; fi
 #	for K in "${vector_of_K_values[@]}"
 #	do
 jid_pi=$(sbatch --job-name=$jobname \
+				--account=bradburd1 \
 				--export=CPUS=$cpus,STORAGENODE=$storagenode,OUTDIR=$outdir,LOGFILESDIR=$logfilesdir,K=$K,SIGMA=$sigma \
 				--cpus-per-task=$cpus \
 				--mem-per-cpu=$ram_per_cpu \
