@@ -55,7 +55,7 @@ ls()
 options(warn=1)
 
 #get list of all square iterations and square sizes to process
-list_of_prefixes <- list.files(path = "/home/hancockz/WM_model/wm_expcon_10", pattern = paste0("wmModel_", "*"), full.names = FALSE)
+list_of_prefixes <- list.files(path = "/home/hancockz/WM_model/wm_exp_01", pattern = paste0("wmModel_", "*"), full.names = FALSE)
 print("did we fuck this up?")
 print(list_of_prefixes)
 list_of_prefixes <- list_of_prefixes %>% as.data.frame() %>% dplyr::rename("file" = ".") %>% separate(., file, into = c("prefix"), sep = "-", extra = "drop") %>% 
