@@ -38,6 +38,7 @@ do
 	for K in "${vector_of_K_values[@]}"
 	do
 	jid_pi=$(sbatch --job-name=$jobname \
+					--account=bradburd1 \
 					--export=CPUS=$cpus,STORAGENODE=$storagenode,OUTDIR=$outdir,INDIR=$indir,LOGFILESDIR=$logfilesdir,K=$K,SIGMA=$sigma,MODEL_FLAVOR=$model_flavor \
 					--cpus-per-task=$cpus \
 					--mem-per-cpu=$ram_per_cpu \
