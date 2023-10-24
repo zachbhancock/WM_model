@@ -1,12 +1,12 @@
 #!/bin/bash
 
 #define variables:
-storagenode=exp_01_out #path to main node where input files live
+storagenode=exp_1_out #path to main node where input files live
 
 logfilesdir=logfiles_exp_10_wmModel #name of directory to create and then write log files to
 
 datesuffix=$(date +%m-%d-%Y.%H)
-outdir=wm_exp_01 #name of directory to create and write all outputs to
+outdir=wm_exp_1 #name of directory to create and write all outputs to
 indir=$storagenode
 finaldir=$storagenode/summary_files #where the models go to die
 
