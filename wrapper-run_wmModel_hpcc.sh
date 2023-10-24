@@ -64,20 +64,20 @@ echo "all_pis_jids is $all_pis_jids"
 
 #note - dependency afterany says wait for all jobs to finish and then run (doesn't matter if jobs have exit status of 0 or not)
 
-jobname=run-compileoutputs #label for SLURM book-keeping
-executable=run_collate_all.sh #script to run
-
-sbatch --job-name=$jobname \
-					--export=CPUS=$cpus,STORAGENODE=$storagenode,OUTDIR=$outdir,LOGFILESDIR=$logfilesdir,FINALDIR=$finaldir \
-					--cpus-per-task=$cpus \
-					--mem-per-cpu=$ram_per_cpu \
-					--output=./$logfilesdir/${jobname}_%A.out \
-					--error=./$logfilesdir/${jobname}_%A.err \
-					--dependency=afterany$(eval echo \$all_pis_jids) \
-					--kill-on-invalid-dep=yes \
-					--time=$time \
-					$executable
-
+#jobname=run-compileoutputs #label for SLURM book-keeping
+#executable=run_collate_all.sh #script to run
+#
+#sbatch --job-name=$jobname \
+#					--export=CPUS=$cpus,STORAGENODE=$storagenode,OUTDIR=$outdir,LOGFILESDIR=$logfilesdir,FINALDIR=$finaldir \
+#					--cpus-per-task=$cpus \
+#					--mem-per-cpu=$ram_per_cpu \
+#					--output=./$logfilesdir/${jobname}_%A.out \
+#					--error=./$logfilesdir/${jobname}_%A.err \
+#					--dependency=afterany$(eval echo \$all_pis_jids) \
+#					--kill-on-invalid-dep=yes \
+#					--time=$time \
+#					$executable
+#
 #DONE
 
 
