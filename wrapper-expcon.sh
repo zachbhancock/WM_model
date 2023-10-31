@@ -15,8 +15,8 @@ K=5
 sigma=1
 
 cpus=2 #number of CPUs to request/use per dataset
-ram_per_cpu=16G #amount of RAM to request/use per CPU
-time=60:00:00
+ram_per_cpu=5G #amount of RAM to request/use per CPU
+time=24:00:00
 
 #slurm variable key:
 # %A = SLURM_ARRAY_JOB_ID
@@ -36,6 +36,7 @@ if [ ! -d ./$logfilesdir ]; then mkdir ./$logfilesdir; fi
 #	for K in "${vector_of_K_values[@]}"
 #	do
 jid_pi=$(sbatch --job-name=$jobname \
+				--account=bradburd1 \
 				--export=CPUS=$cpus,STORAGENODE=$storagenode,OUTDIR=$outdir,LOGFILESDIR=$logfilesdir,K=$K,SIGMA=$sigma \
 				--cpus-per-task=$cpus \
 				--mem-per-cpu=$ram_per_cpu \
