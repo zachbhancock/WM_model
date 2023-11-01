@@ -101,7 +101,7 @@ inset.plot <- ggplot() +
        y = "Latitude") +
   coord_sf()
 print(inset.plot)
-ggsave(file = "empirical_data/bioprj_PRJNA473221_Bombus-bifarius/fig-map_of_range-bombusbifarius.png", 
+ggsave(file = "empirical_data/bioprj_PRJNA473221_Bombus-bifarius/fig-map_of_range-bombusbifarius.pdf", 
        width = 3, height = 3, units = c("in"), dpi = 600)
 
 
@@ -135,7 +135,7 @@ main.plot <- ggplot() +
                        arrow_length = 100, legend_size = 2.25,
                        arrow_north_size = 4, arrow_distance = 90) 
 print(main.plot)
-ggsave(file = "empirical_data/bioprj_PRJNA473221_Bombus-bifarius/fig-map_of_sampled_points_-bombusbifarius.png", 
+ggsave(file = "empirical_data/bioprj_PRJNA473221_Bombus-bifarius/fig-map_of_sampled_points-bombusbifarius.pdf", 
         width = 7.25, height = 7.25, units = c("in"), dpi = 600)
 
 
