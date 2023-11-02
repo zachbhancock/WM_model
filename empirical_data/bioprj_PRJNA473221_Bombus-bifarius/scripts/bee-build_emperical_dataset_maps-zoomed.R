@@ -8,7 +8,6 @@ library(sp)
 library(marmap)
 library(stringr)
 library(cowplot)
-library(ggalt)
 library(ggforce)
 library(legendMap)
 library(rnaturalearthdata)
@@ -21,19 +20,23 @@ library(concaveman)
 rm(list=ls())
 gc()
 
+#set projection info
+crs.universal <- "+proj=robin +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
 
 #get a world map
 world <- ne_countries(scale = "medium", returnclass = "sf")
+crs(world) <- crs.universal
 
-
-#load (already fetched) bathymetric maps of world (one -180 to 180 longitude and another 0 - 360 longitude)
-#bathymap <- getNOAA.bathy(lat1 = -90, lon1 =-180, lat2 = 90, lon2 = 180, resolution = 4, keep = FALSE, antimeridian = FALSE, path = NULL)
-#save(bathymap, file = "/Users/rachel/Desktop/DivDiv/mapping_GBIF_and_genetic_sample_points/world_NOAA_bathy_res4.Robj")
-#load bathymap of world
-load("empirical_data/world_NOAA_bathy_res4.Robj")
-bathmap.simple <- bathymap
-bathmap.simple[bathmap.simple > 0] <- 5000
-bathmap.simple[bathmap.simple <= 0] <- -5000
+#get Great Lakes outlines
+lakes.centerlines <- rnaturalearth::ne_download(scale="large", category = 'physical', type = "lakes", returnclass = "sf")
+crs(lakes.centerlines) <- crs.universal
+#subset world lake outlines to just GLs
+gls <- c("Lake Superior", "Lake Huron",
+         "Lake Michigan", "Lake Erie", "Lake Ontario")
+gls <- subset(lakes.centerlines, name %in% gls)
+#how does it look?
+ggplot() +
+  geom_sf(data = gls)
 
 #get GBIF range points and genetic sample points
 genetic <- read.delim(paste0("empirical_data/bioprj_PRJNA473221_Bombus-bifarius/lat_long_table-bioprj_PRJNA473221_Bombus-bifarius.txt")) %>% 
@@ -67,24 +70,13 @@ ggplot() +
   scale_y_continuous(limits = c(21, 70), breaks = c(seq(-70,70,10))) +
   scale_x_continuous(limits = c(-170, -80), breaks = c(seq(-170,170,10)))
 
-#get zoomed bathymap
-maxlat <- 50
-minlat <- 35
-maxlon <- -115
-minlon <- -127
-
-bathymapZOOMED <- getNOAA.bathy(lat1 = -35, lon1 = -127, lat2 = 50, lon2 = -115, resolution = 4, keep = FALSE, antimeridian = FALSE, path = NULL)
-
-bathymapZOOMED.simple <- bathymapZOOMED
-bathymapZOOMED.simple[bathymapZOOMED.simple > 0] <- 5000
-bathymapZOOMED.simple[bathymapZOOMED.simple <= 0] <- -5000
-
 
 
 #world with box for inset -----
 inset.plot <- ggplot() + 
   #build map
   geom_sf(data = world) +
+  geom_sf(data = gls, fill = "white") +
   scale_y_continuous(expand = c(0, 0), limits = c(21.5, 77), breaks = c(seq(-70,70,30))) +
   scale_x_continuous(expand = c(0, 0), limits = c(-170, -59), breaks = c(seq(-170,170,30))) +
   #add range polygon
