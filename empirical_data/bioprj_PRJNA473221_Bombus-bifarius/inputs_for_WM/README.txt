@@ -1,0 +1,1 @@
+Note - all bioinformatic processing of reads from downloading from SRA to end of running Stacks was done by Eric D. Crandall on the Azure cluster associated with the GEODE project.  The pipeline was started on 08-07-2023 and finished on 08-08-2023.
