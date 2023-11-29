@@ -70,7 +70,11 @@ ggplot() +
   scale_y_continuous(limits = c(21, 70), breaks = c(seq(-70,70,10))) +
   scale_x_continuous(limits = c(-170, -80), breaks = c(seq(-170,170,10)))
 
-
+#set bounds for inset map aka zoomed in map of sample locations
+minlat=35
+maxlat=50
+minlon=-125.5
+maxlon=-116
 
 #world with box for inset -----
 inset.plot <- ggplot() + 
