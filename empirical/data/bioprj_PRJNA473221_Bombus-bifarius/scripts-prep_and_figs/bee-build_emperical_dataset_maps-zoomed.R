@@ -1,50 +1,35 @@
 #idea: make map of species range and sampled genetic points - SPECIFIC FOR BEE
 
 #load libraries
+library(ggplot2)
 library(dplyr)
 library(tidyr)
-library(ggplot2)
-library(sp)
-library(marmap)
-library(stringr)
-library(cowplot)
-library(ggforce)
 library(legendMap)
-library(rnaturalearthdata)
-library(rnaturalearth)
-library(smoothr)
-library(concaveman)
 #devtools::install_github("3wen/legendMap") # to put N arrow and scale bar on map
 
 
 rm(list=ls())
 gc()
 
-#set projection info
-crs.universal <- "+proj=robin +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
-
 #get a world map
-world <- ne_countries(scale = "medium", returnclass = "sf")
-crs(world) <- crs.universal
+world <- rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")
 
 #get Great Lakes outlines
-lakes.centerlines <- rnaturalearth::ne_download(scale="large", category = 'physical', type = "lakes", returnclass = "sf")
-crs(lakes.centerlines) <- crs.universal
+lakes <- rnaturalearth::ne_download(scale="large", category = 'physical', type = "lakes", returnclass = "sf")
 #subset world lake outlines to just GLs
 gls <- c("Lake Superior", "Lake Huron",
          "Lake Michigan", "Lake Erie", "Lake Ontario")
-gls <- subset(lakes.centerlines, name %in% gls)
+gls <- subset(lakes, name %in% gls)
 #how does it look?
 ggplot() +
   geom_sf(data = gls)
 
 #get GBIF range points and genetic sample points
-genetic <- read.delim(paste0("empirical_data/bioprj_PRJNA473221_Bombus-bifarius/lat_long_table-bioprj_PRJNA473221_Bombus-bifarius.txt")) %>% 
+genetic <- read.delim(paste0("empirical/data/bioprj_PRJNA473221_Bombus-bifarius/lat_long_table-bioprj_PRJNA473221_Bombus-bifarius.txt")) %>% 
   dplyr::rename("y"="lat", "x"="long")
-gbif <- read.csv(paste0("empirical_data/bioprj_PRJNA473221_Bombus-bifarius/GBIF_Bombus-bifarius_occurrences.csv")) %>% 
+gbif <- read.csv(paste0("empirical/data/bioprj_PRJNA473221_Bombus-bifarius/GBIF_Bombus-bifarius_occurrences.csv")) %>% 
   dplyr::rename("y"="decimalLatitude", "x"="decimalLongitude")
-genclusts <- read.csv("empirical_data/bioprj_PRJNA473221_Bombus-bifarius/genetic_cluster_for_sample_map.csv")
-
+genclusts <- read.csv("empirical/data/bioprj_PRJNA473221_Bombus-bifarius/genetic_cluster_for_sample_map.csv")
 
 #quick look at raw point data
 ggplot() + 
@@ -135,5 +120,5 @@ ggsave(file = "empirical_data/bioprj_PRJNA473221_Bombus-bifarius/fig-map_of_samp
         width = 7.25, height = 7.25, units = c("in"), dpi = 600)
 
 
-#put plot together in Affinity
+#put two plots together in Affinity to make final fig
 
