@@ -5,7 +5,8 @@
 ################################################################
 
 
-#This code is for running the WM model locally. It uses the example data from the repo - just swap out the "sampled" and "sampled.coal" objects with your own matrices!
+#This code is for running the WM model locally. 
+#It uses the example data from the repo - just swap out the "sampled" and "sampled.coal" objects with your own matrices!
 
 #source our functions 
 source(wm_lib.R)
