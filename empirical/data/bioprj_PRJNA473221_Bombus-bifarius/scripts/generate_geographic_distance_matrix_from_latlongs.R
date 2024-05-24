@@ -1,5 +1,4 @@
-#idea: prep empirical data from NCBI and dryad to use in WM model
-
+#idea: build pairwise geographic distance matrix between all sequenced individuals from lat/long coordinates to use in WM model
 
 #load libraries
 library(dplyr)
