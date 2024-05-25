@@ -16,7 +16,7 @@ headir = "/Users/rachel/WM_model/"
 #calculate and save pairwise geographic distances
 
 #get NCBI metadata table with lat/longs
-df <- read.delim(paste0(headir,"empirical/data/bioprj_PRJNA473221_Bombus-bifarius/PRJNA473221_SraRunTable.txt"), sep = ",")
+df <- read.delim(paste0(headir,"empirical/bioprj_PRJNA473221_Bombus-bifarius/PRJNA473221_SraRunTable.txt"), sep = ",")
 
 #pull out lat/longs for just B. bifarius
 df <- df %>% separate(lat_lon, into = c("decimalLatitude","dir1","decimalLongitude","dir2"), sep = " ", remove = F)
@@ -40,6 +40,6 @@ gcd <- fields::rdist.earth(geodist, miles=FALSE)
 #save
 max_and_pw_dists <- list("pw.gcd.genetic" = gcd)
 
-save(max_and_pw_dists, file=paste0(headir,"empirical/data/bioprj_PRJNA473221_Bombus-bifarius/inputs_for_WM/max_and_pw_distsbioprj_PRJNA473221_Bombus-bifarius.Robj"))
+save(max_and_pw_dists, file=paste0(headir,"empirical/bioprj_PRJNA473221_Bombus-bifarius/inputs_for_WM/max_and_pw_distsbioprj_PRJNA473221_Bombus-bifarius.Robj"))
 
 
