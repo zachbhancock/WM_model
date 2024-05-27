@@ -49,12 +49,12 @@ reproduction() {
         ind.setSpatialPosition(p1.pointUniform());
         ind.tag = 0;
     }
-    i1.evaluate();
+    i1.evaluate(sim.subpopulations);
 
 }
 
 early() {
-    i1.evaluate(p1);
+    i1.evaluate(sim.subpopulations);
     inds = p1.individuals;
 	 inds[inds.age >= 1].fitnessScaling = 0.0;
     competition = i1.localPopulationDensity(inds[inds.age < 1]); 
@@ -64,7 +64,7 @@ early() {
 1: late() {
    // to be ready for mate choice
    sim.treeSeqRememberIndividuals(sim.subpopulations.individuals, permanent=F);
-   i2.evaluate(p1);
+   i2.evaluate(sim.subpopulations);
 }
 
 50000 late(){
@@ -74,6 +74,7 @@ catn("Reached generation 50k");
 
 100000 late(){
 	outname= WORKINGDIR+TREEFILE;
+	catn(outname);
 	sim.treeSeqOutput(outname);
 	writeFile(outname + "_popsize", paste(p1.individualCount));
 	writeFile(outname + "_density", paste(p1.individualCount / 625));

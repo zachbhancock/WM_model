@@ -1,24 +1,24 @@
 #!/bin/bash
 
 #define variables:
-storagenode=/mnt/scratch/hancockz #path to main node where input files live
+storagenode=exp_10_out #path to main node where input files live
 
-logfilesdir=logfiles_wmModel #name of directory to create and then write log files to
+logfilesdir=logfiles_exp_10_wmModel #name of directory to create and then write log files to
 
 datesuffix=$(date +%m-%d-%Y.%H)
-outdir=$storagenode/ALL_wmModel_outputs-$datesuffix #name of directory to create and write all outputs to
-indir=$storagenode/allpimat_wmModel_outputs-11-18-2022.13
+outdir=wm_exp_10 #name of directory to create and write all outputs to
+indir=$storagenode
 finaldir=$storagenode/summary_files #where the models go to die
 
 model_flavor=wishart #value wishart or cmplnl
 
 #define some values to pass into slim
-vector_of_K_values=( 2.0 5.0 10.0 25.0 )
-vector_of_sigma_values=( 0.5 0.75 1.0 1.25 1.5 2.0 )
+vector_of_K_values=( 5 )
+vector_of_sigma_values=( 1 )
 
 cpus=2 #number of CPUs to request/use per dataset
-ram_per_cpu=16G #amount of RAM to request/use per CPU
-time=168:00:00
+ram_per_cpu=5G #amount of RAM to request/use per CPU
+time=60:00:00
 
 #slurm variable key:
 # %A = SLURM_ARRAY_JOB_ID
@@ -38,6 +38,7 @@ do
 	for K in "${vector_of_K_values[@]}"
 	do
 	jid_pi=$(sbatch --job-name=$jobname \
+					--account=bradburd1 \
 					--export=CPUS=$cpus,STORAGENODE=$storagenode,OUTDIR=$outdir,INDIR=$indir,LOGFILESDIR=$logfilesdir,K=$K,SIGMA=$sigma,MODEL_FLAVOR=$model_flavor \
 					--cpus-per-task=$cpus \
 					--mem-per-cpu=$ram_per_cpu \
@@ -63,20 +64,20 @@ echo "all_pis_jids is $all_pis_jids"
 
 #note - dependency afterany says wait for all jobs to finish and then run (doesn't matter if jobs have exit status of 0 or not)
 
-jobname=run-compileoutputs #label for SLURM book-keeping
-executable=run_collate_all.sh #script to run
-
-sbatch --job-name=$jobname \
-					--export=CPUS=$cpus,STORAGENODE=$storagenode,OUTDIR=$outdir,LOGFILESDIR=$logfilesdir,FINALDIR=$finaldir \
-					--cpus-per-task=$cpus \
-					--mem-per-cpu=$ram_per_cpu \
-					--output=./$logfilesdir/${jobname}_%A.out \
-					--error=./$logfilesdir/${jobname}_%A.err \
-					--dependency=afterany$(eval echo \$all_pis_jids) \
-					--kill-on-invalid-dep=yes \
-					--time=$time \
-					$executable
-
+#jobname=run-compileoutputs #label for SLURM book-keeping
+#executable=run_collate_all.sh #script to run
+#
+#sbatch --job-name=$jobname \
+#					--export=CPUS=$cpus,STORAGENODE=$storagenode,OUTDIR=$outdir,LOGFILESDIR=$logfilesdir,FINALDIR=$finaldir \
+#					--cpus-per-task=$cpus \
+#					--mem-per-cpu=$ram_per_cpu \
+#					--output=./$logfilesdir/${jobname}_%A.out \
+#					--error=./$logfilesdir/${jobname}_%A.err \
+#					--dependency=afterany$(eval echo \$all_pis_jids) \
+#					--kill-on-invalid-dep=yes \
+#					--time=$time \
+#					$executable
+#
 #DONE
 
 

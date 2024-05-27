@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #define variables:
-storagenode=/mnt/scratch/hancockz #path to main node where input files live
+storagenode=/scratch/lsa_root/lsa1/hancockz #path to main node where input files live
 
 logfilesdir=logfiles_wmModel #name of directory to create and then write log files to
 
