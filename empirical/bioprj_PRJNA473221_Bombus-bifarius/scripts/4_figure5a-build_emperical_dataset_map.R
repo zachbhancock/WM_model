@@ -1,15 +1,20 @@
-#idea: make map of species range and sampled genetic points - SPECIFIC FOR BEE
+#idea: make map of species range and sampled genetic points for empirical dataset
 
 #load libraries
 library(ggplot2)
 library(dplyr)
 library(tidyr)
+library(concaveman)
+library(smoothr)
 library(legendMap)
 #devtools::install_github("3wen/legendMap") # to put N arrow and scale bar on map
 
 
 rm(list=ls())
 gc()
+
+#path to WM_model git repo
+headir = "/Users/rachel/WM_model/"
 
 #get a world map
 world <- rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")
@@ -25,11 +30,15 @@ ggplot() +
   geom_sf(data = gls)
 
 #get GBIF range points and genetic sample points
-genetic <- read.delim(paste0("empirical/data/bioprj_PRJNA473221_Bombus-bifarius/lat_long_table-bioprj_PRJNA473221_Bombus-bifarius.txt")) %>% 
-  dplyr::rename("y"="lat", "x"="long")
-gbif <- read.csv(paste0("empirical/data/bioprj_PRJNA473221_Bombus-bifarius/GBIF_Bombus-bifarius_occurrences.csv")) %>% 
+genetic <- read.delim(paste0(headir,"empirical/bioprj_PRJNA473221_Bombus-bifarius/PRJNA473221_SraRunTable.txt"), sep  = ",") %>%
+  filter(Organism == "Bombus bifarius") %>% 
+  separate(lat_lon, into = c("decimalLatitude","dir1","decimalLongitude","dir2"), sep = " ", remove = F) %>% 
+  mutate(decimalLongitude = as.numeric(decimalLongitude)*(-1)) %>% 
+  mutate(decimalLatitude = as.numeric(decimalLatitude)) %>% 
   dplyr::rename("y"="decimalLatitude", "x"="decimalLongitude")
-genclusts <- read.csv("empirical/data/bioprj_PRJNA473221_Bombus-bifarius/genetic_cluster_for_sample_map.csv")
+gbif <- read.csv(paste0(headir,"empirical/bioprj_PRJNA473221_Bombus-bifarius/figure5a/GBIF_Bombus-bifarius_occurrences.csv")) %>% 
+  dplyr::rename("y"="decimalLatitude", "x"="decimalLongitude")
+genclusts <- read.csv(paste0(headir,"empirical/bioprj_PRJNA473221_Bombus-bifarius/figure5a/genetic_clusters_for_sample_map.csv"))
 
 #quick look at raw point data
 ggplot() + 
@@ -82,7 +91,7 @@ inset.plot <- ggplot() +
        y = "Latitude") +
   coord_sf()
 print(inset.plot)
-ggsave(file = "empirical_data/bioprj_PRJNA473221_Bombus-bifarius/fig-map_of_range-bombusbifarius.pdf", 
+ggsave(file = paste0(headir,"empirical/bioprj_PRJNA473221_Bombus-bifarius/figure5a/fig5a-map_of_range-bombusbifarius.pdf"), 
        width = 3, height = 3, units = c("in"), dpi = 600)
 
 
@@ -116,9 +125,9 @@ main.plot <- ggplot() +
                        arrow_length = 100, legend_size = 2.25,
                        arrow_north_size = 4, arrow_distance = 90) 
 print(main.plot)
-ggsave(file = "empirical_data/bioprj_PRJNA473221_Bombus-bifarius/fig-map_of_sampled_points-bombusbifarius.pdf", 
+ggsave(file = paste0(headir,"empirical/bioprj_PRJNA473221_Bombus-bifarius/figure5a/fig5a-map_of_sampled_points-bombusbifarius.pdf"), 
         width = 7.25, height = 7.25, units = c("in"), dpi = 600)
 
 
-#put two plots together in Affinity to make final fig
+#put two plots together in Affinity to make final file: fig5a-map-bombusbifarius.pdf
 

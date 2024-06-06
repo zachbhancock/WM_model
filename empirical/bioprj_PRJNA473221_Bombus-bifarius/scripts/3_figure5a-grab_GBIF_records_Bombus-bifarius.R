@@ -11,15 +11,27 @@ library(dplyr)
 library(rnaturalearthdata)
 library(rnaturalearth)
 
+
+rm(list = ls())
+gc()
+
+
+
+# define some variables ---------------
+#path to WM_model git repo
+headir = "/Users/rachel/WM_model/"
+
+#replace XXXXX with GBIF account info 
+user<-'XXXXXXX' 
+password<- 'XXXXXXX'
+email<-'XXXXXXX'
+
 #get taxon key for species of interest aka little brown bats
 taxonKey <- rgbif::name_backbone(name="Bombus bifarius")$speciesKey
 
-#borrow Jamie's account for now
-user<-'jpringle' 
-password<- 'Prlx;2533'
-email<-'jpringle@unh.edu'
 
-#build search query for GBIF
+
+#build search query for GBIF ---------------
 searchRequest <- rgbif::occ_download(type='and',pred('taxonKey',taxonKey),
                                      pred("hasGeospatialIssue", FALSE),
                                      pred("hasCoordinate", TRUE),
@@ -45,6 +57,9 @@ whatGot = rgbif::occ_download_get(searchRequest,overwrite=TRUE)
 datGBIF = rgbif::occ_download_import(x=whatGot)
 datGBIF <- datGBIF %>% mutate(gbifID = as.character(gbifID))
 
+
+
+# do some data clean-up --------------
 #view on map quick
 world <- ne_countries(scale = "medium", returnclass = "sf")
 
@@ -73,5 +88,6 @@ keep %>%
   geom_hline(yintercept = 48, colour = "red")
 
 #save
-write.csv(keep, "empirical_data/bioprj_PRJNA473221_Bombus-bifarius/GBIF_Bombus-bifarius_occurrences.csv", row.names = FALSE)
+write.csv(keep, paste0(headir,"empirical/bioprj_PRJNA473221_Bombus-bifarius/figure5a/GBIF_Bombus-bifarius_occurrences.csv"), row.names = FALSE)
+
 

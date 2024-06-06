@@ -33,7 +33,7 @@ ibsMod <- stan_model(model_code=stanBlock)
 #get model inputs (pwp, geog dist, Nloci) --------------
 sampkey <- read.delim(sampkeyfile)
   
-#get number of polymorphic loci
+#get number of loci (L)
 load(nlocifile)
 Nloci = BPstats$nLoci
 
@@ -41,7 +41,7 @@ Nloci = BPstats$nLoci
 load(geogdistfile)
 geoDist <- max_and_pw_dists$pw.gcd.genetic
 
-# rename geoDist from SRR IDs to sampleX IDs
+#rename geoDist from SRR IDs to sampleX IDs
 geoDistnames <- colnames(geoDist) %>% as.data.frame() %>% 
   dplyr::rename("run_acc_sra" = ".") %>% 
   dplyr::mutate(order = 1:dplyr::n()) %>% 

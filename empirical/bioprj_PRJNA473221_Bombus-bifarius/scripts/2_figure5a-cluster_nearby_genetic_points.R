@@ -4,29 +4,27 @@
 library(dplyr)
 library(tidyr)
 library(ggplot2)
-library(sp)
-library(marmap)
-library(stringr)
-library(cowplot)
-library(ggalt)
-library(ggforce)
-library(legendMap)
-library(rnaturalearthdata)
 library(rnaturalearth)
-library(smoothr)
-library(concaveman)
-
+library(fields)
 
 rm(list=ls())
 gc()
 
 
+
+#define path to WM_model git repo
+headir = "/Users/rachel/WM_model/"
+
 #get a world map
 world <- ne_countries(scale = "medium", returnclass = "sf")
 
 #get genetic sample points
-genetic <- read.delim(paste0("empirical_data/bioprj_PRJNA473221_Bombus-bifarius/lat_long_table-bioprj_PRJNA473221_Bombus-bifarius.txt")) %>% 
-  dplyr::rename("y"="lat", "x"="long")
+genetic <- read.delim(paste0(headir,"empirical/bioprj_PRJNA473221_Bombus-bifarius/PRJNA473221_SraRunTable.txt"), sep  = ",") %>%
+  filter(Organism == "Bombus bifarius") %>% 
+  separate(lat_lon, into = c("decimalLatitude","dir1","decimalLongitude","dir2"), sep = " ", remove = F) %>% 
+  mutate(decimalLongitude = as.numeric(decimalLongitude)*(-1)) %>% 
+  mutate(decimalLatitude = as.numeric(decimalLatitude)) %>% 
+  dplyr::rename("y"="decimalLatitude", "x"="decimalLongitude")
 
 #add dummy pop names and N samps per pop
 genetic <- genetic %>% group_by(x,y) %>% mutate(dummypop = paste0(y,"_",x))
@@ -35,9 +33,7 @@ genetic <- genetic %>% group_by(dummypop) %>% mutate(n.samps.perpop = n()) %>% a
 genetic.locales <- genetic %>% dplyr::select(x,y,dummypop,n.samps.perpop) %>% distinct() %>% 
   arrange(y,x) %>% mutate(clusterid = 1:nrow(.))
 
-# range polygon and genetic points - zoomed --------
-#google maps ocean color: #89b4f9
-#high for scale_fill_gradient2 should be gray90
+#see where we are at viz-wise
 ggplot() + 
   #build map
   geom_sf(data = world) +
@@ -126,10 +122,12 @@ dists <- dists %>%
   mutate(self = ifelse(samp == samp2, "self","notself")) %>% 
   filter(self == "notself") %>% 
   arrange(dist_km) %>% mutate(samp = as.numeric(samp))
-#good, all further apart than 20km as expected
+  #good, all further apart than 20km as expected
 
 #save
-write.csv(out %>% dplyr::select(x,y,newclusterid,newn.samps.perpop) %>% distinct(), "empirical_data/bioprj_PRJNA473221_Bombus-bifarius/genetic_cluster_for_sample_map.csv", row.names = FALSE)
+write.csv(out %>% dplyr::select(x,y,newclusterid,newn.samps.perpop) %>% distinct(), 
+          paste0(headir,"empirical/bioprj_PRJNA473221_Bombus-bifarius/figure5a/newgenetic_clusters_for_sample_map.csv"), 
+          row.names = FALSE)
 
 
 
