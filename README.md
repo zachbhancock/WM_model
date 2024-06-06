@@ -20,3 +20,6 @@ The model will build an Robj file that includes the posterior distribution of al
 # Questions?
 
 If you have any questions about running this model, please contact Zach at hancockz (at) umich.edu. 
+
+# Permanent DOI associated with publication
+[![DOI](https://zenodo.org/badge/486267977.svg)](https://zenodo.org/doi/10.5281/zenodo.11508543)
